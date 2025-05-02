@@ -27,6 +27,8 @@ import BookSession from './pages/BookSession';
 import UpdateGym from './pages/UpdateGym';
 import AdminDashboard from './pages/AdminDashboard';
 import Home from './pages/Home';
+import MembershipManagement from './pages/MembershipManagement';
+import MembershipUpdate from './pages/MembershipUpdate';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -113,6 +115,16 @@ function App() {
                     <Route path="/admin-dashboard" element={
                         <ProtectedRoute>
                             <AdminDashboard />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/membership-management" element={
+                        <ProtectedRoute>
+                            <MembershipManagement />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/membership-update" element={
+                        <ProtectedRoute>
+                            <MembershipUpdate />
                         </ProtectedRoute>
                     } />
                     <Route
