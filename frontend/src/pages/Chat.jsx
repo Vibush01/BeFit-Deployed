@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { motion } from 'framer-motion';
+import { toast } from 'react-toastify';
 
 const Chat = () => {
     const { user, userDetails } = useContext(AuthContext);
@@ -46,19 +48,26 @@ const Chat = () => {
 
                 if (user.role === 'gym') {
                     // Gym Profiles can only chat with Trainers
-                    gym.trainers.forEach((trainer) => receiversList.push({ _id: trainer._id, name: trainer.name, role: 'trainer' }));
+                    gym.trainers.forEach((trainer) =>
+                        receiversList.push({ _id: trainer._id, name: trainer.name, role: 'trainer' })
+                    );
                 } else if (user.role === 'trainer') {
                     // Trainers can chat with Members and the Gym Profile
                     receiversList.push({ _id: gym._id, name: gym.gymName, role: 'gym' });
-                    gym.members.forEach((member) => receiversList.push({ _id: member._id, name: member.name, role: 'member' }));
+                    gym.members.forEach((member) =>
+                        receiversList.push({ _id: member._id, name: member.name, role: 'member' })
+                    );
                 } else if (user.role === 'member') {
                     // Members can only chat with Trainers
-                    gym.trainers.forEach((trainer) => receiversList.push({ _id: trainer._id, name: trainer.name, role: 'trainer' }));
+                    gym.trainers.forEach((trainer) =>
+                        receiversList.push({ _id: trainer._id, name: trainer.name, role: 'trainer' })
+                    );
                 }
 
                 setReceivers(receiversList);
             } catch (err) {
-                setError('Failed to fetch receivers'+err);
+                setError('Failed to fetch receivers');
+                toast.error('Failed to fetch receivers', { position: 'top-right' });
             }
         };
 
@@ -78,6 +87,7 @@ const Chat = () => {
             setMessages(res.data);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to fetch messages');
+            toast.error(err.response?.data?.message || 'Failed to fetch messages', { position: 'top-right' });
         }
     };
 
@@ -106,80 +116,159 @@ const Chat = () => {
         setMessage('');
     };
 
+    // Animation Variants
+    const fadeIn = {
+        hidden: { opacity: 0, y: 30 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
+    const zoomIn = {
+        hidden: { opacity: 0, scale: 0.9 },
+        visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
+    const buttonHover = {
+        hover: { scale: 1.05, boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)', transition: { duration: 0.3 } },
+    };
+
     if (!user) {
-        return <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-            <p className="text-red-500">You must be logged in to access chat</p>
-        </div>;
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4">
+                <motion.p
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="text-red-500 text-lg sm:text-xl font-semibold text-center"
+                >
+                    You must be logged in to access chat
+                </motion.p>
+            </div>
+        );
     }
 
     if ((user.role !== 'gym' && (!userDetails || !userDetails.gym)) || error) {
-        return <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-            <p className="text-red-500">{error || 'You must be in a gym to access chat'}</p>
-        </div>;
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4">
+                <motion.p
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="text-red-500 text-lg sm:text-xl font-semibold text-center"
+                >
+                    {error || 'You must be in a gym to access chat'}
+                </motion.p>
+            </div>
+        );
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 py-8">
-            <div className="container mx-auto flex">
+        <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+            <div className="container mx-auto flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-6">
                 {/* Receivers List */}
-                <div className="w-1/4 bg-white p-4 rounded-lg shadow-lg mr-4">
-                    <h2 className="text-2xl font-bold mb-4">Chat With</h2>
-                    {error && <p className="text-red-500 mb-4">{error}</p>}
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="w-full lg:w-1/4 bg-white p-6 sm:p-8 rounded-2xl shadow-xl"
+                >
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Chat With</h2>
+                    {error && (
+                        <motion.p
+                            initial="hidden"
+                            animate="visible"
+                            variants={fadeIn}
+                            className="text-red-500 mb-6 text-sm sm:text-base"
+                        >
+                            {error}
+                        </motion.p>
+                    )}
                     {receivers.length > 0 ? (
-                        <ul className="space-y-2">
+                        <ul className="space-y-3">
                             {receivers.map((receiver) => (
-                                <li
+                                <motion.li
                                     key={receiver._id}
                                     onClick={() => handleReceiverSelect(receiver)}
-                                    className={`p-2 rounded cursor-pointer ${selectedReceiver?._id === receiver._id ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+                                    className={`p-3 rounded-lg cursor-pointer transition-all duration-300 text-sm sm:text-base ${
+                                        selectedReceiver?._id === receiver._id
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-gray-100 hover:bg-gray-200'
+                                    }`}
+                                    whileHover={{ scale: 1.02 }}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={{ once: true }}
+                                    variants={zoomIn}
                                 >
                                     {receiver.name} ({receiver.role})
-                                </li>
+                                </motion.li>
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-gray-700">No users to chat with</p>
+                        <p className="text-gray-700 text-sm sm:text-base">No users to chat with</p>
                     )}
-                </div>
+                </motion.div>
 
                 {/* Chat Messages */}
-                <div className="w-3/4 bg-white p-4 rounded-lg shadow-lg">
-                    <h2 className="text-2xl font-bold mb-4">Chat</h2>
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="w-full lg:w-3/4 bg-white p-6 sm:p-8 rounded-2xl shadow-xl"
+                >
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Chat</h2>
                     {selectedReceiver ? (
                         <>
-                            <div className="h-96 overflow-y-auto mb-4 p-4 border rounded">
+                            <div className="h-96 overflow-y-auto mb-6 p-4 border border-gray-300 rounded-lg bg-gray-50">
                                 {messages.map((msg, index) => (
-                                    <div
+                                    <motion.div
                                         key={index}
-                                        className={`mb-2 ${msg.sender.toString() === user.id ? 'text-right' : 'text-left'}`}
+                                        className={`mb-4 ${
+                                            msg.sender.toString() === user.id ? 'text-right' : 'text-left'
+                                        }`}
+                                        initial="hidden"
+                                        whileInView="visible"
+                                        viewport={{ once: true }}
+                                        variants={zoomIn}
                                     >
-                                        <p className={`inline-block p-2 rounded ${msg.sender.toString() === user.id ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+                                        <p
+                                            className={`inline-block p-3 rounded-lg text-sm sm:text-base ${
+                                                msg.sender.toString() === user.id
+                                                    ? 'bg-blue-600 text-white'
+                                                    : 'bg-gray-200 text-gray-800'
+                                            }`}
+                                        >
                                             {msg.message}
                                         </p>
-                                        <p className="text-gray-500 text-sm">{new Date(msg.timestamp).toLocaleString()}</p>
-                                    </div>
+                                        <p className="text-gray-500 text-xs sm:text-sm mt-1">
+                                            {new Date(msg.timestamp).toLocaleString()}
+                                        </p>
+                                    </motion.div>
                                 ))}
                             </div>
-                            <div className="flex">
+                            <div className="flex space-x-2">
                                 <input
                                     type="text"
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
-                                    className="flex-1 p-2 border rounded-l"
+                                    className="flex-1 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                     placeholder="Type a message..."
                                 />
-                                <button
+                                <motion.button
                                     onClick={handleSendMessage}
-                                    className="bg-blue-600 text-white p-2 rounded-r hover:bg-blue-700"
+                                    whileHover="hover"
+                                    variants={buttonHover}
+                                    className="bg-blue-600 text-white px-6 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 text-sm sm:text-base"
                                 >
                                     Send
-                                </button>
+                                </motion.button>
                             </div>
                         </>
                     ) : (
-                        <p className="text-gray-700 text-center">Select a user to start chatting</p>
+                        <p className="text-gray-700 text-center text-sm sm:text-base">
+                            Select a user to start chatting
+                        </p>
                     )}
-                </div>
+                </motion.div>
             </div>
         </div>
     );

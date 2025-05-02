@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
@@ -13,7 +14,7 @@ const AdminDashboard = () => {
     const [gyms, setGyms] = useState([]);
     const [selectedGym, setSelectedGym] = useState(null);
     const [contactMessages, setContactMessages] = useState([]);
-    const [toggleview,setToggleView]=useState(false)
+    const [toggleview, setToggleView] = useState(false);
     const [analytics, setAnalytics] = useState({
         pageViews: [],
         userDistribution: [],
@@ -29,7 +30,7 @@ const AdminDashboard = () => {
                 });
                 setGyms(res.data);
             } catch (err) {
-                toast.error(err+'Failed to fetch gyms', { position: "top-right" });
+                toast.error('Failed to fetch gyms', { position: "top-right" });
             }
         };
 
@@ -41,7 +42,7 @@ const AdminDashboard = () => {
                 });
                 setContactMessages(res.data);
             } catch (err) {
-                toast.error(err+'Failed to fetch contact messages', { position: "top-right" });
+                toast.error('Failed to fetch contact messages', { position: "top-right" });
             }
         };
 
@@ -53,7 +54,7 @@ const AdminDashboard = () => {
                 });
                 setAnalytics(res.data);
             } catch (err) {
-                toast.error(err+'Failed to fetch analytics data', { position: "top-right" });
+                toast.error('Failed to fetch analytics data', { position: "top-right" });
             }
         };
 
@@ -66,7 +67,7 @@ const AdminDashboard = () => {
 
     const handleViewGym = (gym) => {
         setSelectedGym(gym);
-        setToggleView(!toggleview)
+        setToggleView(!toggleview);
     };
 
     const handleDeleteGym = async (gymId) => {
@@ -79,7 +80,7 @@ const AdminDashboard = () => {
             setSelectedGym(null);
             toast.success('Gym deleted successfully', { position: "top-right" });
         } catch (err) {
-            toast.error(err+'Failed to delete gym', { position: "top-right" });
+            toast.error('Failed to delete gym', { position: "top-right" });
         }
     };
 
@@ -92,14 +93,38 @@ const AdminDashboard = () => {
             setContactMessages(contactMessages.filter((message) => message._id !== messageId));
             toast.success('Contact message deleted successfully', { position: "top-right" });
         } catch (err) {
-            toast.error(err+'Failed to delete contact message', { position: "top-right" });
+            toast.error('Failed to delete contact message', { position: "top-right" });
         }
     };
 
+    // Animation Variants
+    const fadeIn = {
+        hidden: { opacity: 0, y: 30 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
+    const zoomIn = {
+        hidden: { opacity: 0, scale: 0.9 },
+        visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
+    const buttonHover = {
+        hover: { scale: 1.05, boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)', transition: { duration: 0.3 } },
+    };
+
     if (user?.role !== 'admin') {
-        return <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-            <p className="text-red-500">Access denied. This page is only for Admins.</p>
-        </div>;
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4">
+                <motion.p
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="text-red-500 text-lg sm:text-xl font-semibold text-center"
+                >
+                    Access denied. This page is only for Admins.
+                </motion.p>
+            </div>
+        );
     }
 
     // Prepare chart data
@@ -140,142 +165,232 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 py-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
             <div className="container mx-auto">
-                <h1 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
+                <motion.h1
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="text-3xl sm:text-4xl font-bold mb-8 text-center text-gray-900 tracking-tight"
+                >
+                    Admin Dashboard
+                </motion.h1>
 
                 {/* Gyms List */}
-                <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-                    <h2 className="text-2xl font-bold mb-4">Gyms</h2>
+                <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeIn}
+                    className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl mb-8"
+                >
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Gyms</h2>
                     {gyms.length > 0 ? (
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left">
+                            <table className="w-full text-left text-sm sm:text-base">
                                 <thead>
-                                    <tr>
-                                        <th className="p-2">Gym Name</th>
-                                        <th className="p-2">Address</th>
-                                        <th className="p-2">Owner Name</th>
-                                        <th className="p-2">Owner Email</th>
-                                        <th className="p-2">Email</th>
-                                        <th className="p-2">Actions</th>
+                                    <tr className="bg-gray-50">
+                                        <th className="p-3 sm:p-4">Gym Name</th>
+                                        <th className="p-3 sm:p-4">Address</th>
+                                        <th className="p-3 sm:p-4">Owner Name</th>
+                                        <th className="p-3 sm:p-4">Owner Email</th>
+                                        <th className="p-3 sm:p-4">Email</th>
+                                        <th className="p-3 sm:p-4">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {gyms.map((gym) => (
-                                        <tr key={gym._id} className="border-t">
-                                            <td className="p-2">{gym.gymName}</td>
-                                            <td className="p-2">{gym.address}</td>
-                                            <td className="p-2">{gym.ownerName}</td>
-                                            <td className="p-2">{gym.ownerEmail}</td>
-                                            <td className="p-2">{gym.email}</td>
-                                            <td className="p-2">
-                                                <button
+                                        <motion.tr
+                                            key={gym._id}
+                                            className="border-b hover:bg-gray-50 transition-all duration-300"
+                                            initial="hidden"
+                                            whileInView="visible"
+                                            viewport={{ once: true }}
+                                            variants={zoomIn}
+                                        >
+                                            <td className="p-3 sm:p-4 font-medium text-gray-800">{gym.gymName}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{gym.address}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{gym.ownerName}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{gym.ownerEmail}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{gym.email}</td>
+                                            <td className="p-3 sm:p-4 flex space-x-2">
+                                                <motion.button
                                                     onClick={() => handleViewGym(gym)}
-                                                    className="bg-green-600 text-white px-4 py-2 rounded mr-2 hover:bg-green-700"
+                                                    whileHover="hover"
+                                                    variants={buttonHover}
+                                                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all duration-300 text-sm sm:text-base"
                                                 >
                                                     View
-                                                </button>
-                                                <button
+                                                </motion.button>
+                                                <motion.button
                                                     onClick={() => handleDeleteGym(gym._id)}
-                                                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                                    whileHover="hover"
+                                                    variants={buttonHover}
+                                                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all duration-300 text-sm sm:text-base"
                                                 >
                                                     Delete
-                                                </button>
+                                                </motion.button>
                                             </td>
-                                        </tr>
+                                        </motion.tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
                     ) : (
-                        <p className="text-gray-700 text-center">No gyms found</p>
+                        <p className="text-gray-700 text-center text-sm sm:text-base">No gyms found</p>
                     )}
-                </div>
+                </motion.div>
 
                 {/* Gym Details (Members and Trainers) */}
                 {selectedGym && toggleview && (
-                    <div className="bg-gray-100 p-6 rounded-lg shadow-lg mb-8 flex space-x-4">
-                        <div className="flex-1">
-                            <h2 className="text-2xl font-bold mb-4">Users in {selectedGym.gymName}</h2>
-                            <h3 className="text-lg font-semibold mb-2">Members</h3>
-                            {selectedGym.members.length > 0 ? (
-                                <ul className="list-disc pl-5 mb-4">
-                                    {selectedGym.members.map((member) => (
-                                        <li key={member._id} className="text-gray-700">
-                                            {member.name} ({member.email}) - Membership: {member.membership?.duration || 'N/A'} (End: {member.membership?.endDate ? new Date(member.membership.endDate).toLocaleDateString() : 'N/A'})
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p className="text-gray-700">No members</p>
-                            )}
-                            <h3 className="text-lg font-semibold mb-2">Trainers</h3>
-                            {selectedGym.trainers.length > 0 ? (
-                                <ul className="list-disc pl-5">
-                                    {selectedGym.trainers.map((trainer) => (
-                                        <li key={trainer._id} className="text-gray-700">
-                                            {trainer.name} ({trainer.email})
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p className="text-gray-700">No trainers</p>
-                            )}
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeIn}
+                        className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl mb-8"
+                    >
+                        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">
+                            Users in {selectedGym.gymName}
+                        </h2>
+                        <div className="flex flex-col sm:flex-row sm:space-x-8">
+                            <div className="flex-1 mb-6 sm:mb-0">
+                                <h3 className="text-lg sm:text-xl font-semibold mb-4 text-gray-800">Members</h3>
+                                {selectedGym.members.length > 0 ? (
+                                    <ul className="space-y-4">
+                                        {selectedGym.members.map((member) => (
+                                            <motion.li
+                                                key={member._id}
+                                                className="border border-gray-200 p-4 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                                                initial="hidden"
+                                                whileInView="visible"
+                                                viewport={{ once: true }}
+                                                variants={zoomIn}
+                                            >
+                                                <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                                    <strong>Name:</strong> {member.name}
+                                                </p>
+                                                <p className="text-gray-600 text-sm sm:text-base">
+                                                    <strong>Email:</strong> {member.email}
+                                                </p>
+                                                <p className="text-gray-600 text-sm sm:text-base">
+                                                    <strong>Membership:</strong> {member.membership?.duration || 'N/A'} (End: {member.membership?.endDate ? new Date(member.membership.endDate).toLocaleDateString() : 'N/A'})
+                                                </p>
+                                            </motion.li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-gray-700 text-sm sm:text-base">No members</p>
+                                )}
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-lg sm:text-xl font-semibold mb-4 text-gray-800">Trainers</h3>
+                                {selectedGym.trainers.length > 0 ? (
+                                    <ul className="space-y-4">
+                                        {selectedGym.trainers.map((trainer) => (
+                                            <motion.li
+                                                key={trainer._id}
+                                                className="border border-gray-200 p-4 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                                                initial="hidden"
+                                                whileInView="visible"
+                                                viewport={{ once: true }}
+                                                variants={zoomIn}
+                                            >
+                                                <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                                    <strong>Name:</strong> {trainer.name}
+                                                </p>
+                                                <p className="text-gray-600 text-sm sm:text-base">
+                                                    <strong>Email:</strong> {trainer.email}
+                                                </p>
+                                            </motion.li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-gray-700 text-sm sm:text-base">No trainers</p>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    </motion.div>
                 )}
 
                 {/* Contact Messages */}
-                <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-                    <h2 className="text-2xl font-bold mb-4">Contact Messages</h2>
+                <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeIn}
+                    className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl mb-8"
+                >
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Contact Messages</h2>
                     {contactMessages.length > 0 ? (
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left">
+                            <table className="w-full text-left text-sm sm:text-base">
                                 <thead>
-                                    <tr>
-                                        <th className="p-2">Name</th>
-                                        <th className="p-2">Email</th>
-                                        <th className="p-2">Phone</th>
-                                        <th className="p-2">Subject</th>
-                                        <th className="p-2">Message</th>
-                                        <th className="p-2">Received On</th>
-                                        <th className="p-2">Actions</th>
+                                    <tr className="bg-gray-50">
+                                        <th className="p-3 sm:p-4">Name</th>
+                                        <th className="p-3 sm:p-4">Email</th>
+                                        <th className="p-3 sm:p-4">Phone</th>
+                                        <th className="p-3 sm:p-4">Subject</th>
+                                        <th className="p-3 sm:p-4">Message</th>
+                                        <th className="p-3 sm:p-4">Received On</th>
+                                        <th className="p-3 sm:p-4">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {contactMessages.map((message) => (
-                                        <tr key={message._id} className="border-t">
-                                            <td className="p-2">{message.name}</td>
-                                            <td className="p-2">{message.email}</td>
-                                            <td className="p-2">{message.phone}</td>
-                                            <td className="p-2">{message.subject}</td>
-                                            <td className="p-2">{message.message}</td>
-                                            <td className="p-2">{new Date(message.createdAt).toLocaleString()}</td>
-                                            <td className="p-2">
-                                                <button
+                                        <motion.tr
+                                            key={message._id}
+                                            className="border-b hover:bg-gray-50 transition-all duration-300"
+                                            initial="hidden"
+                                            whileInView="visible"
+                                            viewport={{ once: true }}
+                                            variants={zoomIn}
+                                        >
+                                            <td className="p-3 sm:p-4 font-medium text-gray-800">{message.name}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{message.email}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{message.phone}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{message.subject}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{message.message}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{new Date(message.createdAt).toLocaleString()}</td>
+                                            <td className="p-3 sm:p-4">
+                                                <motion.button
                                                     onClick={() => handleDeleteMessage(message._id)}
-                                                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                                    whileHover="hover"
+                                                    variants={buttonHover}
+                                                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all duration-300 text-sm sm:text-base"
                                                 >
                                                     Delete
-                                                </button>
+                                                </motion.button>
                                             </td>
-                                        </tr>
+                                        </motion.tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
                     ) : (
-                        <p className="text-gray-700 text-center">No contact messages</p>
+                        <p className="text-gray-700 text-center text-sm sm:text-base">No contact messages</p>
                     )}
-                </div>
+                </motion.div>
 
                 {/* Analytics Overview (Charts) */}
-                <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-                    <h2 className="text-2xl font-bold mb-4">Analytics Overview</h2>
-                    <div className="flex flex-col md:flex-row md:space-x-4">
-                        <div className="flex-1 mb-4 md:mb-0">
-                            <h3 className="text-lg font-semibold mb-2">Page Views</h3>
-                            <div style={{ height: '200px' }}>
+                <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeIn}
+                    className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl mb-8"
+                >
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Analytics Overview</h2>
+                    <div className="flex flex-col lg:flex-row lg:space-x-8">
+                        <motion.div
+                            className="flex-1 mb-8 lg:mb-0"
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={zoomIn}
+                        >
+                            <h3 className="text-lg sm:text-xl font-semibold mb-4 text-gray-800">Page Views</h3>
+                            <div className="h-64 sm:h-80">
                                 <Bar
                                     data={pageViewsData}
                                     options={{
@@ -283,7 +398,7 @@ const AdminDashboard = () => {
                                         maintainAspectRatio: false,
                                         plugins: {
                                             legend: { position: 'top' },
-                                            title: { display: true, text: 'Page Views' },
+                                            title: { display: true, text: 'Page Views', font: { size: 16 } },
                                         },
                                         scales: {
                                             y: {
@@ -296,10 +411,16 @@ const AdminDashboard = () => {
                                     }}
                                 />
                             </div>
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="text-lg font-semibold mb-2">User Distribution</h3>
-                            <div style={{ height: '200px' }}>
+                        </motion.div>
+                        <motion.div
+                            className="flex-1"
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={zoomIn}
+                        >
+                            <h3 className="text-lg sm:text-xl font-semibold mb-4 text-gray-800">User Distribution</h3>
+                            <div className="h-64 sm:h-80">
                                 <Pie
                                     data={userDistributionData}
                                     options={{
@@ -307,49 +428,62 @@ const AdminDashboard = () => {
                                         maintainAspectRatio: false,
                                         plugins: {
                                             legend: { position: 'top' },
-                                            title: { display: true, text: 'User Distribution' },
+                                            title: { display: true, text: 'User Distribution', font: { size: 16 } },
                                         },
                                     }}
                                 />
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Analytics Events */}
-                <div className="bg-white p-6 rounded-lg shadow-lg">
-                    <h2 className="text-2xl font-bold mb-4">Analytics - All Events</h2>
+                <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeIn}
+                    className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl"
+                >
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Analytics - All Events</h2>
                     {analytics.events.length > 0 ? (
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left">
+                            <table className="w-full text-left text-sm sm:text-base">
                                 <thead>
-                                    <tr>
-                                        <th className="p-2">Event</th>
-                                        <th className="p-2">Page</th>
-                                        <th className="p-2">User</th>
-                                        <th className="p-2">Role</th>
-                                        <th className="p-2">Details</th>
-                                        <th className="p-2">Time</th>
+                                    <tr className="bg-gray-50">
+                                        <th className="p-3 sm:p-4">Event</th>
+                                        <th className="p-3 sm:p-4">Page</th>
+                                        <th className="p-3 sm:p-4">User</th>
+                                        <th className="p-3 sm:p-4">Role</th>
+                                        <th className="p-3 sm:p-4">Details</th>
+                                        <th className="p-3 sm:p-4">Time</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {analytics.events.map((event) => (
-                                        <tr key={event._id} className="border-t">
-                                            <td className="p-2">{event.event}</td>
-                                            <td className="p-2">{event.page || 'N/A'}</td>
-                                            <td className="p-2">{event.user?.name} ({event.user?.email})</td>
-                                            <td className="p-2">{event.userModel}</td>
-                                            <td className="p-2">{event.details}</td>
-                                            <td className="p-2">{new Date(event.createdAt).toLocaleString()}</td>
-                                        </tr>
+                                        <motion.tr
+                                            key={event._id}
+                                            className="border-b hover:bg-gray-50 transition-all duration-300"
+                                            initial="hidden"
+                                            whileInView="visible"
+                                            viewport={{ once: true }}
+                                            variants={zoomIn}
+                                        >
+                                            <td className="p-3 sm:p-4 font-medium text-gray-800">{event.event}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{event.page || 'N/A'}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{event.user?.name} ({event.user?.email})</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{event.userModel}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{event.details}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{new Date(event.createdAt).toLocaleString()}</td>
+                                        </motion.tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
                     ) : (
-                        <p className="text-gray-700 text-center">No events recorded</p>
+                        <p className="text-gray-700 text-center text-sm sm:text-base">No events recorded</p>
                     )}
-                </div>
+                </motion.div>
             </div>
         </div>
     );

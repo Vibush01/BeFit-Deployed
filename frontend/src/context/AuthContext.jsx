@@ -1,5 +1,4 @@
 import { createContext, useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 
 export const AuthContext = createContext();
@@ -7,45 +6,50 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [userDetails, setUserDetails] = useState(null);
+    const [loading, setLoading] = useState(true); // Add loading state
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                const decoded = jwtDecode(token);
-                setUser({ id: decoded.id, role: decoded.role });
-                fetchUserDetails(decoded.id, decoded.role, token);
-            } catch (error) {
-                localStorage.removeItem('token'+error);
-            }
-        }
-    }, []);
-
-    const fetchUserDetails = async (id, role, token) => {
+    // Function to fetch user profile
+    const fetchUserProfile = async (token) => {
         try {
             const res = await axios.get('http://localhost:5000/api/auth/profile', {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setUserDetails(res.data);
-        } catch (error) {
-            console.error('Error fetching user details:', error);
+        } catch (err) {
+            console.error('Failed to fetch user profile:', err);
+            // If token is invalid, clear it
+            localStorage.removeItem('token');
+            setUser(null);
+            setUserDetails(null);
         }
     };
 
-    const login = async (email, password, role) => {
-        try {
-            const res = await axios.post('http://localhost:5000/api/auth/login', {
-                email,
-                password,
-                role,
-            });
-            localStorage.setItem('token', res.data.token);
-            const decoded = jwtDecode(res.data.token);
-            setUser({ id: res.data.user.id, role: res.data.user.role });
-            await fetchUserDetails(res.data.user.id, res.data.user.role, res.data.token);
-        } catch (error) {
-            throw new Error(error.response?.data?.message || 'Failed to login');
+    // Check for token on app load
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            // Parse the token to get user data
+            try {
+                const userData = JSON.parse(atob(token.split('.')[1]));
+                setUser({ id: userData.id, role: userData.role });
+                // Fetch user details
+                fetchUserProfile(token).finally(() => setLoading(false));
+            } catch (err) {
+                console.error('Invalid token:', err);
+                localStorage.removeItem('token');
+                setUser(null);
+                setUserDetails(null);
+                setLoading(false);
+            }
+        } else {
+            setLoading(false);
         }
+    }, []);
+
+    const login = (userData, token) => {
+        localStorage.setItem('token', token);
+        setUser(userData);
+        fetchUserProfile(token);
     };
 
     const logout = () => {
@@ -55,7 +59,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, userDetails, login, logout }}>
+        <AuthContext.Provider value={{ user, userDetails, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

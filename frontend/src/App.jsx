@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -140,27 +140,6 @@ function App() {
             </Router>
         </AuthProvider>
     );
-}
-
-function HomeRedirect() {
-    const { user } = useContext(AuthContext);
-    
-    if (!user) {
-        return <Navigate to="/login" />;
-    }
-
-    switch (user.role) {
-        case 'member':
-            return <Navigate to="/member-dashboard" />;
-        case 'trainer':
-            return <Navigate to="/gyms" />;
-        case 'gym':
-            return <Navigate to="/gym-dashboard" />;
-        case 'admin':
-            return <Navigate to="/admin-dashboard" />;
-        default:
-            return <Navigate to="/login" />;
-    }
 }
 
 export default App;
