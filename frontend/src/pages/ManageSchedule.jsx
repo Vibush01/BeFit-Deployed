@@ -21,7 +21,7 @@ const ManageSchedule = () => {
                 });
                 setSchedules(res.data);
             } catch (err) {
-                setError('Failed to fetch schedules');
+                setError('Failed to fetch schedules'+err);
             }
         };
 

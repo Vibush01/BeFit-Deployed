@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
                 setUser({ id: decoded.id, role: decoded.role });
                 fetchUserDetails(decoded.id, decoded.role, token);
             } catch (error) {
-                localStorage.removeItem('token');
+                localStorage.removeItem('token'+error);
             }
         }
     }, []);

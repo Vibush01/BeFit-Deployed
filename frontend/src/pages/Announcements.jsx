@@ -46,7 +46,7 @@ const Announcements = () => {
                 });
                 setAnnouncements(res.data);
             } catch (err) {
-                setError('Failed to fetch announcements');
+                setError('Failed to fetch announcements'+err);
             }
         };
 

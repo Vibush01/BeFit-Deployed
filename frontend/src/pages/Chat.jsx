@@ -58,7 +58,7 @@ const Chat = () => {
 
                 setReceivers(receiversList);
             } catch (err) {
-                setError('Failed to fetch receivers');
+                setError('Failed to fetch receivers'+err);
             }
         };
 

@@ -18,7 +18,7 @@ const BookSession = () => {
                 });
                 setAvailableSchedules(res.data);
             } catch (err) {
-                setError('Failed to fetch available schedules');
+                setError('Failed to fetch available schedules'+err);
             }
         };
 
@@ -30,7 +30,7 @@ const BookSession = () => {
                 });
                 setBookedSessions(res.data);
             } catch (err) {
-                setError('Failed to fetch booked sessions');
+                setError('Failed to fetch booked sessions'+err);
             }
         };
 

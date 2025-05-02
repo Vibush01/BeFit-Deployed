@@ -27,6 +27,8 @@ import BookSession from './pages/BookSession';
 import UpdateGym from './pages/UpdateGym';
 import AdminDashboard from './pages/AdminDashboard';
 import Home from './pages/Home';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
     return (
@@ -122,6 +124,19 @@ function App() {
                         }
                     />
                 </Routes>
+                {/* Toast Container */}
+                <ToastContainer
+                    position="top-right"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="light"
+                />
             </Router>
         </AuthProvider>
     );

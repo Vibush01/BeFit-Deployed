@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 const RequestPlan = () => {
     const { user } = useContext(AuthContext);
@@ -9,8 +10,6 @@ const RequestPlan = () => {
     const [plans, setPlans] = useState([]);
     const [selectedTrainer, setSelectedTrainer] = useState('');
     const [requestType, setRequestType] = useState('workout');
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
 
     useEffect(() => {
         const fetchTrainers = async () => {
@@ -23,7 +22,7 @@ const RequestPlan = () => {
                 const gymRes = await axios.get(`http://localhost:5000/api/gym/${gymId}`);
                 setTrainers(gymRes.data.trainers);
             } catch (err) {
-                setError('Failed to fetch trainers');
+                toast.error(err+'Failed to fetch trainers', { position: "top-right" });
             }
         };
 
@@ -35,7 +34,7 @@ const RequestPlan = () => {
                 });
                 setRequests(res.data);
             } catch (err) {
-                setError('Failed to fetch plan requests');
+                toast.error(err+'Failed to fetch plan requests', { position: "top-right" });
             }
         };
 
@@ -70,7 +69,7 @@ const RequestPlan = () => {
 
                 setPlans(combinedPlans);
             } catch (err) {
-                setError('Failed to fetch plans');
+                toast.error(err+'Failed to fetch plans', { position: "top-right" });
             }
         };
 
@@ -83,7 +82,7 @@ const RequestPlan = () => {
 
     const handleRequest = async () => {
         if (!selectedTrainer) {
-            setError('Please select a trainer');
+            toast.error('Please select a trainer', { position: "top-right" });
             return;
         }
 
@@ -96,10 +95,10 @@ const RequestPlan = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setRequests([res.data.planRequest, ...requests]);
-            setSuccess('Request sent successfully');
             setSelectedTrainer('');
+            toast.success('Request sent successfully', { position: "top-right" });
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to send request');
+            toast.error(err.response?.data?.message || 'Failed to send request', { position: "top-right" });
         }
     };
 
@@ -113,8 +112,6 @@ const RequestPlan = () => {
         <div className="min-h-screen bg-gray-100 py-8">
             <div className="container mx-auto">
                 <h1 className="text-3xl font-bold mb-6 text-center">Request Workout & Diet Plan</h1>
-                {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-                {success && <p className="text-green-500 mb-4 text-center">{success}</p>}
 
                 {/* Request a Plan */}
                 <div className="bg-white p-6 rounded-lg shadow-lg mb-8">

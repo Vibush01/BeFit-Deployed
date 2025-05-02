@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 const GymDashboard = () => {
     const { user, userDetails } = useContext(AuthContext);
@@ -9,8 +10,6 @@ const GymDashboard = () => {
     const [announcements, setAnnouncements] = useState([]);
     const [announcementForm, setAnnouncementForm] = useState('');
     const [editAnnouncementId, setEditAnnouncementId] = useState(null);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
 
     useEffect(() => {
         const fetchRequests = async () => {
@@ -21,7 +20,7 @@ const GymDashboard = () => {
                 });
                 setRequests(res.data);
             } catch (err) {
-                setError('Failed to fetch join requests');
+                toast.error(err+'Failed to fetch join requests', { position: "top-right" });
             }
         };
 
@@ -34,7 +33,7 @@ const GymDashboard = () => {
                     });
                     setAnnouncements(res.data);
                 } catch (err) {
-                    setError('Failed to fetch announcements');
+                    toast.error(err+'Failed to fetch announcements', { position: "top-right" });
                 }
             }
         };
@@ -53,10 +52,10 @@ const GymDashboard = () => {
             await axios.post(`http://localhost:5000/api/gym/requests/${requestId}/accept`, {}, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setSuccess('Request accepted');
             setRequests(requests.filter((req) => req._id !== requestId));
+            toast.success('Request accepted', { position: "top-right" });
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to accept request');
+            toast.error(err.response?.data?.message || 'Failed to accept request', { position: "top-right" });
         }
     };
 
@@ -66,17 +65,17 @@ const GymDashboard = () => {
             await axios.post(`http://localhost:5000/api/gym/requests/${requestId}/deny`, {}, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setSuccess('Request denied');
             setRequests(requests.filter((req) => req._id !== requestId));
+            toast.success('Request denied', { position: "top-right" });
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to deny request');
+            toast.error(err.response?.data?.message || 'Failed to deny request', { position: "top-right" });
         }
     };
 
     const handlePostAnnouncement = async (e) => {
         e.preventDefault();
         if (!announcementForm.trim()) {
-            setError('Announcement message is required');
+            toast.error('Announcement message is required', { position: "top-right" });
             return;
         }
 
@@ -87,18 +86,18 @@ const GymDashboard = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setAnnouncements(announcements.map((ann) => (ann._id === editAnnouncementId ? res.data.announcement : ann)));
-                setSuccess('Announcement updated');
                 setEditAnnouncementId(null);
+                toast.success('Announcement updated', { position: "top-right" });
             } else {
                 const res = await axios.post('http://localhost:5000/api/chat/announcements', { message: announcementForm }, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setAnnouncements([res.data.announcement, ...announcements]);
-                setSuccess('Announcement posted');
+                toast.success('Announcement posted', { position: "top-right" });
             }
             setAnnouncementForm('');
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to post announcement');
+            toast.error(err.response?.data?.message || 'Failed to post announcement', { position: "top-right" });
         }
     };
 
@@ -114,9 +113,9 @@ const GymDashboard = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setAnnouncements(announcements.filter((ann) => ann._id !== announcementId));
-            setSuccess('Announcement deleted');
+            toast.success('Announcement deleted', { position: "top-right" });
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to delete announcement');
+            toast.error(err+'Failed to delete announcement', { position: "top-right" });
         }
     };
 
@@ -134,8 +133,6 @@ const GymDashboard = () => {
                 <h1 className="text-3xl font-bold mb-6 text-center">
                     {user.role === 'gym' ? 'Gym Dashboard' : 'Trainer Dashboard'}
                 </h1>
-                {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-                {success && <p className="text-green-500 mb-4 text-center">{success}</p>}
 
                 {/* Quick Links for Trainers Not in a Gym */}
                 {user.role === 'trainer' && !isTrainerInGym && (

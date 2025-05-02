@@ -14,7 +14,7 @@ const GymList = () => {
                 const res = await axios.get('http://localhost:5000/api/gym');
                 setGyms(res.data);
             } catch (err) {
-                setError('Failed to fetch gyms');
+                setError('Failed to fetch gyms'+err);
             }
         };
         fetchGyms();

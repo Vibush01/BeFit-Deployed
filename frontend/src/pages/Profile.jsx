@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 const Profile = () => {
     const { user, logout } = useContext(AuthContext);
@@ -13,8 +14,6 @@ const Profile = () => {
         profileImage: null,
     });
     const [previewImage, setPreviewImage] = useState(null);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -31,7 +30,7 @@ const Profile = () => {
                 });
                 setPreviewImage(res.data.profileImage || null);
             } catch (err) {
-                setError('Failed to fetch profile');
+                toast.error(err+'Failed to fetch profile', { position: "top-right" });
             }
         };
 
@@ -66,10 +65,10 @@ const Profile = () => {
                 },
             });
 
-            setSuccess('Profile updated successfully');
             setFormData({ ...formData, password: '' });
+            toast.success('Profile updated successfully', { position: "top-right" });
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to update profile');
+            toast.error(err.response?.data?.message || 'Failed to update profile', { position: "top-right" });
         }
     };
 
@@ -82,8 +81,6 @@ const Profile = () => {
         <div className="min-h-screen bg-gray-100 flex items-center justify-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
                 <h1 className="text-2xl font-bold mb-6 text-center">Profile</h1>
-                {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-                {success && <p className="text-green-500 mb-4 text-center">{success}</p>}
 
                 <div className="flex justify-center mb-4">
                     <div className="relative">

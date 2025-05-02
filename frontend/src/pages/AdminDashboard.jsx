@@ -3,6 +3,7 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+import { toast } from 'react-toastify';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
@@ -17,7 +18,6 @@ const AdminDashboard = () => {
         userDistribution: [],
         events: [],
     });
-    const [error, setError] = useState('');
 
     useEffect(() => {
         const fetchGyms = async () => {
@@ -28,7 +28,7 @@ const AdminDashboard = () => {
                 });
                 setGyms(res.data);
             } catch (err) {
-                setError('Failed to fetch gyms');
+                toast.error(err+'Failed to fetch gyms', { position: "top-right" });
             }
         };
 
@@ -40,7 +40,7 @@ const AdminDashboard = () => {
                 });
                 setContactMessages(res.data);
             } catch (err) {
-                setError('Failed to fetch contact messages');
+                toast.error(err+'Failed to fetch contact messages', { position: "top-right" });
             }
         };
 
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
                 });
                 setAnalytics(res.data);
             } catch (err) {
-                setError('Failed to fetch analytics data');
+                toast.error(err+'Failed to fetch analytics data', { position: "top-right" });
             }
         };
 
@@ -75,8 +75,9 @@ const AdminDashboard = () => {
             });
             setGyms(gyms.filter((gym) => gym._id !== gymId));
             setSelectedGym(null);
+            toast.success('Gym deleted successfully', { position: "top-right" });
         } catch (err) {
-            setError('Failed to delete gym');
+            toast.error(err+'Failed to delete gym', { position: "top-right" });
         }
     };
 
@@ -87,8 +88,9 @@ const AdminDashboard = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setContactMessages(contactMessages.filter((message) => message._id !== messageId));
+            toast.success('Contact message deleted successfully', { position: "top-right" });
         } catch (err) {
-            setError('Failed to delete contact message');
+            toast.error(err+'Failed to delete contact message', { position: "top-right" });
         }
     };
 
@@ -139,7 +141,6 @@ const AdminDashboard = () => {
         <div className="min-h-screen bg-gray-100 py-8">
             <div className="container mx-auto">
                 <h1 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
-                {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 
                 {/* Gyms List */}
                 <div className="bg-white p-6 rounded-lg shadow-lg mb-8">

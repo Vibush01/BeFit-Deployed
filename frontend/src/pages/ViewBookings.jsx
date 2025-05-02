@@ -16,7 +16,7 @@ const ViewBookings = () => {
                 });
                 setBookings(res.data);
             } catch (err) {
-                setError('Failed to fetch bookings');
+                setError('Failed to fetch bookings'+err);
             }
         };
 

@@ -36,7 +36,7 @@ const UpdateGym = () => {
                 });
                 setPreviewImages(res.data.photos || []);
             } catch (err) {
-                setError('Failed to fetch gym details');
+                setError('Failed to fetch gym details'+err);
             }
         };
 

@@ -25,7 +25,7 @@ const ProgressTracker = () => {
                 });
                 setLogs(res.data);
             } catch (err) {
-                setError('Failed to fetch progress logs');
+                setError('Failed to fetch progress logs'+err);
             }
         };
         if (user?.role === 'member') {
@@ -110,7 +110,7 @@ const ProgressTracker = () => {
             setLogs(logs.filter((log) => log._id !== id));
             setSuccess('Progress log deleted');
         } catch (err) {
-            setError('Failed to delete progress log');
+            setError('Failed to delete progress log'+err);
         }
     };
 

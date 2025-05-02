@@ -25,7 +25,7 @@ const MacroCalculator = () => {
                 });
                 setLogs(res.data);
             } catch (err) {
-                setError('Failed to fetch macro logs');
+                setError('Failed to fetch macro logs'+err);
             }
         };
         if (user?.role === 'member') {
@@ -92,7 +92,7 @@ const MacroCalculator = () => {
             setLogs(logs.filter((log) => log._id !== id));
             setSuccess('Macro log deleted');
         } catch (err) {
-            setError('Failed to delete macro log');
+            setError('Failed to delete macro log'+err);
         }
     };
 

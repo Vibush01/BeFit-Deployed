@@ -40,7 +40,7 @@ const WorkoutPlans = () => {
                 });
                 setDietPlans(dietRes.data);
             } catch (err) {
-                setError('Failed to fetch plans');
+                setError('Failed to fetch plans'+err);
             }
         };
 
@@ -52,7 +52,7 @@ const WorkoutPlans = () => {
                 });
                 setRequests(res.data);
             } catch (err) {
-                setError('Failed to fetch plan requests');
+                setError('Failed to fetch plan requests'+err);
             }
         };
 
@@ -66,7 +66,7 @@ const WorkoutPlans = () => {
                 const gymRes = await axios.get(`http://localhost:5000/api/gym/${gymId}`);
                 setMembers(gymRes.data.members);
             } catch (err) {
-                setError('Failed to fetch members');
+                setError('Failed to fetch members'+err);
             }
         };
 
@@ -232,7 +232,7 @@ const WorkoutPlans = () => {
             setPlans(plans.filter((plan) => plan._id !== id));
             setSuccess('Workout plan deleted');
         } catch (err) {
-            setError('Failed to delete workout plan');
+            setError('Failed to delete workout plan'+err);
         }
     };
 
@@ -245,7 +245,7 @@ const WorkoutPlans = () => {
             setDietPlans(dietPlans.filter((plan) => plan._id !== id));
             setSuccess('Diet plan deleted');
         } catch (err) {
-            setError('Failed to delete diet plan');
+            setError('Failed to delete diet plan'+err);
         }
     };
 

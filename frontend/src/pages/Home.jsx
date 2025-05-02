@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { toast } from 'react-toastify';
 
 const Home = () => {
     const [formData, setFormData] = useState({
@@ -10,8 +11,6 @@ const Home = () => {
         subject: '',
         message: '',
     });
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,7 +20,7 @@ const Home = () => {
         e.preventDefault();
         try {
             const res = await axios.post('http://localhost:5000/api/contact/messages', formData);
-            setSuccess(res.data.message);
+            toast.success(res.data.message, { position: "top-right" });
             setFormData({
                 name: '',
                 email: '',
@@ -30,7 +29,7 @@ const Home = () => {
                 message: '',
             });
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to submit contact form');
+            toast.error(err.response?.data?.message || 'Failed to submit contact form', { position: "top-right" });
         }
     };
 
@@ -64,13 +63,13 @@ const Home = () => {
                         variants={fadeIn}
                         className="text-5xl md:text-6xl font-extrabold mb-4"
                     >
-                        Welcome to BeFit
+                        Welcome to FitChat
                     </motion.h1>
                     <motion.p
                         variants={fadeIn}
                         className="text-xl md:text-2xl mb-8"
                     >
-                        Empower Your Fitness Journey with BeFit – Connect, Train, and Thrive!
+                        Empower Your Fitness Journey with FitChat – Connect, Train, and Thrive!
                     </motion.p>
                     <motion.a
                         href="#contact"
@@ -95,7 +94,7 @@ const Home = () => {
                         variants={fadeIn}
                         className="text-4xl font-bold text-center mb-12 text-gray-800"
                     >
-                        About BeFit
+                        About FitChat
                     </motion.h2>
                     <div className="flex flex-col md:flex-row items-center gap-12">
                         <motion.div
@@ -113,13 +112,13 @@ const Home = () => {
                             className="flex-1"
                         >
                             <p className="text-lg text-gray-600 mb-6">
-                                BeFit is more than just a fitness platform – it’s a community dedicated to helping you achieve your health and wellness goals. We bring together gym owners, personal trainers, and fitness enthusiasts in a seamless, technology-driven ecosystem designed to enhance your fitness experience.
+                            FitChat is more than just a fitness platform – it’s a community dedicated to helping you achieve your health and wellness goals. We bring together gym owners, personal trainers, and fitness enthusiasts in a seamless, technology-driven ecosystem designed to enhance your fitness experience.
                             </p>
                             <p className="text-lg text-gray-600 mb-6">
-                                Our platform empowers gym owners to manage their facilities efficiently, allows trainers to create personalized workout and diet plans, and provides members with tools to track their progress, book sessions, and connect with their fitness community in real-time. Whether you’re a beginner or a seasoned athlete, BeFit offers everything you need to succeed.
+                                Our platform empowers gym owners to manage their facilities efficiently, allows trainers to create personalized workout and diet plans, and provides members with tools to track their progress, book sessions, and connect with their fitness community in real-time. Whether you’re a beginner or a seasoned athlete, FitChat offers everything you need to succeed.
                             </p>
                             <p className="text-lg text-gray-600">
-                                Join BeFit today and take the first step towards a healthier, stronger you. With features like real-time chat, progress tracking, macro calculators, and more, we’re here to support you every step of the way.
+                                Join FitChat today and take the first step towards a healthier, stronger you. With features like real-time chat, progress tracking, macro calculators, and more, we’re here to support you every step of the way.
                             </p>
                         </motion.div>
                     </div>
@@ -139,7 +138,7 @@ const Home = () => {
                         variants={fadeIn}
                         className="text-4xl font-bold text-center mb-12 text-gray-800"
                     >
-                        Why Choose BeFit?
+                        Why Choose FitChat?
                     </motion.h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <motion.div
@@ -209,10 +208,10 @@ const Home = () => {
                             className="flex-1"
                         >
                             <p className="text-lg text-gray-600 mb-6">
-                                At BeFit, our mission is to revolutionize the fitness industry by providing a platform that fosters collaboration, motivation, and success. We aim to empower every individual—whether a gym owner, trainer, or member—to take control of their fitness journey with the best tools and resources available.
+                                At FitChat, our mission is to revolutionize the fitness industry by providing a platform that fosters collaboration, motivation, and success. We aim to empower every individual—whether a gym owner, trainer, or member—to take control of their fitness journey with the best tools and resources available.
                             </p>
                             <p className="text-lg text-gray-600">
-                                We believe fitness is not just about physical strength but also about building a supportive community. BeFit is here to bridge the gap between fitness professionals and enthusiasts, ensuring everyone has access to the guidance and support they need to thrive.
+                                We believe fitness is not just about physical strength but also about building a supportive community. FitChat is here to bridge the gap between fitness professionals and enthusiasts, ensuring everyone has access to the guidance and support they need to thrive.
                             </p>
                         </motion.div>
                         <motion.div
@@ -250,7 +249,7 @@ const Home = () => {
                             className="bg-white p-6 rounded-lg shadow-lg"
                         >
                             <p className="text-gray-600 mb-4 italic">
-                                "BeFit has transformed the way I manage my gym. The platform is intuitive, and I can easily oversee my trainers and members. Highly recommend!"
+                                "FitChat has transformed the way I manage my gym. The platform is intuitive, and I can easily oversee my trainers and members. Highly recommend!"
                             </p>
                             <p className="text-gray-800 font-semibold">– John Doe, Gym Owner</p>
                         </motion.div>
@@ -259,7 +258,7 @@ const Home = () => {
                             className="bg-white p-6 rounded-lg shadow-lg"
                         >
                             <p className="text-gray-600 mb-4 italic">
-                                "As a trainer, BeFit makes my job so much easier. I can create plans, schedule sessions, and chat with my clients all in one place."
+                                "As a trainer, FitChat makes my job so much easier. I can create plans, schedule sessions, and chat with my clients all in one place."
                             </p>
                             <p className="text-gray-800 font-semibold">– Jane Smith, Personal Trainer</p>
                         </motion.div>
@@ -268,7 +267,7 @@ const Home = () => {
                             className="bg-white p-6 rounded-lg shadow-lg"
                         >
                             <p className="text-gray-600 mb-4 italic">
-                                "I love how BeFit helps me track my progress and connect with my trainer. It’s the best fitness app I’ve ever used!"
+                                "I love how FitChat helps me track my progress and connect with my trainer. It’s the best fitness app I’ve ever used!"
                             </p>
                             <p className="text-gray-800 font-semibold">– Mike Johnson, Member</p>
                         </motion.div>
@@ -292,8 +291,6 @@ const Home = () => {
                     >
                         Contact Us
                     </motion.h2>
-                    {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-                    {success && <p className="text-green-500 mb-4 text-center">{success}</p>}
                     <motion.div
                         variants={fadeIn}
                         className="max-w-lg mx-auto bg-gray-50 p-8 rounded-lg shadow-lg"
@@ -368,7 +365,7 @@ const Home = () => {
             {/* Footer */}
             <footer className="bg-gray-800 text-white py-8">
                 <div className="container mx-auto px-4 text-center">
-                    <p className="text-lg mb-4">&copy; 2025 BeFit. All rights reserved.</p>
+                    <p className="text-lg mb-4">© 2025 FitChat. All rights reserved.</p>
                     <div className="flex justify-center space-x-4">
                         <a href="#" className="text-gray-400 hover:text-white">Privacy Policy</a>
                         <a href="#" className="text-gray-400 hover:text-white">Terms of Service</a>

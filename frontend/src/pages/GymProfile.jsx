@@ -18,7 +18,7 @@ const GymProfile = () => {
                 const res = await axios.get(`http://localhost:5000/api/gym/${id}`);
                 setGym(res.data);
             } catch (err) {
-                setError('Failed to fetch gym details');
+                setError('Failed to fetch gym details'+err);
             }
         };
 
