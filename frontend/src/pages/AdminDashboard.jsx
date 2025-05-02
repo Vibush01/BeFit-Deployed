@@ -13,6 +13,7 @@ const AdminDashboard = () => {
     const [gyms, setGyms] = useState([]);
     const [selectedGym, setSelectedGym] = useState(null);
     const [contactMessages, setContactMessages] = useState([]);
+    const [toggleview,setToggleView]=useState(false)
     const [analytics, setAnalytics] = useState({
         pageViews: [],
         userDistribution: [],
@@ -65,6 +66,7 @@ const AdminDashboard = () => {
 
     const handleViewGym = (gym) => {
         setSelectedGym(gym);
+        setToggleView(!toggleview)
     };
 
     const handleDeleteGym = async (gymId) => {
@@ -191,7 +193,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Gym Details (Members and Trainers) */}
-                {selectedGym && (
+                {selectedGym && toggleview && (
                     <div className="bg-gray-100 p-6 rounded-lg shadow-lg mb-8 flex space-x-4">
                         <div className="flex-1">
                             <h2 className="text-2xl font-bold mb-4">Users in {selectedGym.gymName}</h2>
