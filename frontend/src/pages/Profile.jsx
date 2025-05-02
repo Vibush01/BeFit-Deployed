@@ -31,7 +31,7 @@ const Profile = () => {
                 });
                 setPreviewImage(res.data.profileImage || null);
             } catch (err) {
-                toast.error('Failed to fetch profile', { position: "top-right" });
+                toast.error('Failed to fetch profile'+err, { position: "top-right" });
             }
         };
 

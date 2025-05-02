@@ -21,7 +21,7 @@ const BookSession = () => {
                 setAvailableSchedules(res.data);
             } catch (err) {
                 setError('Failed to fetch available schedules');
-                toast.error('Failed to fetch available schedules', { position: 'top-right' });
+                toast.error('Failed to fetch available schedules'+err, { position: 'top-right' });
             }
         };
 
@@ -34,7 +34,7 @@ const BookSession = () => {
                 setBookedSessions(res.data);
             } catch (err) {
                 setError('Failed to fetch booked sessions');
-                toast.error('Failed to fetch booked sessions', { position: 'top-right' });
+                toast.error('Failed to fetch booked sessions'+err, { position: 'top-right' });
             }
         };
 

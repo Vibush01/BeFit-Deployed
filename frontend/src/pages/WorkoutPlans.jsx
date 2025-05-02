@@ -43,7 +43,7 @@ const WorkoutPlans = () => {
                 setDietPlans(dietRes.data);
             } catch (err) {
                 setError('Failed to fetch plans');
-                toast.error('Failed to fetch plans', { position: 'top-right' });
+                toast.error('Failed to fetch plans'+err, { position: 'top-right' });
             }
         };
 
@@ -56,7 +56,7 @@ const WorkoutPlans = () => {
                 setRequests(res.data);
             } catch (err) {
                 setError('Failed to fetch plan requests');
-                toast.error('Failed to fetch plan requests', { position: 'top-right' });
+                toast.error('Failed to fetch plan requests'+err, { position: 'top-right' });
             }
         };
 
@@ -71,7 +71,7 @@ const WorkoutPlans = () => {
                 setMembers(gymRes.data.members);
             } catch (err) {
                 setError('Failed to fetch members');
-                toast.error('Failed to fetch members', { position: 'top-right' });
+                toast.error('Failed to fetch members'+err, { position: 'top-right' });
             }
         };
 
@@ -245,7 +245,7 @@ const WorkoutPlans = () => {
             toast.success('Workout plan deleted', { position: 'top-right' });
         } catch (err) {
             setError('Failed to delete workout plan');
-            toast.error('Failed to delete workout plan', { position: 'top-right' });
+            toast.error('Failed to delete workout plan'+err, { position: 'top-right' });
         }
     };
 
@@ -260,7 +260,7 @@ const WorkoutPlans = () => {
             toast.success('Diet plan deleted', { position: 'top-right' });
         } catch (err) {
             setError('Failed to delete diet plan');
-            toast.error('Failed to delete diet plan', { position: 'top-right' });
+            toast.error('Failed to delete diet plan'+err, { position: 'top-right' });
         }
     };
 

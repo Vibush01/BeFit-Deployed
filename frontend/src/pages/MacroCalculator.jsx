@@ -28,7 +28,7 @@ const MacroCalculator = () => {
                 setLogs(res.data);
             } catch (err) {
                 setError('Failed to fetch macro logs');
-                toast.error('Failed to fetch macro logs', { position: 'top-right' });
+                toast.error('Failed to fetch macro logs'+err, { position: 'top-right' });
             }
         };
         if (user?.role === 'member') {
@@ -100,7 +100,7 @@ const MacroCalculator = () => {
             toast.success('Macro log deleted', { position: 'top-right' });
         } catch (err) {
             setError('Failed to delete macro log');
-            toast.error('Failed to delete macro log', { position: 'top-right' });
+            toast.error('Failed to delete macro log'+err, { position: 'top-right' });
         }
     };
 

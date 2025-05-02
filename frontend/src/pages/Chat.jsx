@@ -67,7 +67,7 @@ const Chat = () => {
                 setReceivers(receiversList);
             } catch (err) {
                 setError('Failed to fetch receivers');
-                toast.error('Failed to fetch receivers', { position: 'top-right' });
+                toast.error('Failed to fetch receivers'+err, { position: 'top-right' });
             }
         };
 

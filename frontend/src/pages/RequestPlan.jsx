@@ -23,7 +23,7 @@ const RequestPlan = () => {
                 const gymRes = await axios.get(`http://localhost:5000/api/gym/${gymId}`);
                 setTrainers(gymRes.data.trainers);
             } catch (err) {
-                toast.error('Failed to fetch trainers', { position: "top-right" });
+                toast.error('Failed to fetch trainers'+err, { position: "top-right" });
             }
         };
 
@@ -35,7 +35,7 @@ const RequestPlan = () => {
                 });
                 setRequests(res.data);
             } catch (err) {
-                toast.error('Failed to fetch plan requests', { position: "top-right" });
+                toast.error('Failed to fetch plan requests'+err, { position: "top-right" });
             }
         };
 
@@ -70,7 +70,7 @@ const RequestPlan = () => {
 
                 setPlans(combinedPlans);
             } catch (err) {
-                toast.error('Failed to fetch plans', { position: "top-right" });
+                toast.error('Failed to fetch plans'+err, { position: "top-right" });
             }
         };
 

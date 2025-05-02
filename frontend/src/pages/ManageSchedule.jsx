@@ -24,7 +24,7 @@ const ManageSchedule = () => {
                 setSchedules(res.data);
             } catch (err) {
                 setError('Failed to fetch schedules');
-                toast.error('Failed to fetch schedules', { position: 'top-right' });
+                toast.error('Failed to fetch schedules'+err, { position: 'top-right' });
             }
         };
 

@@ -28,7 +28,7 @@ const ProgressTracker = () => {
                 setLogs(res.data);
             } catch (err) {
                 setError('Failed to fetch progress logs');
-                toast.error('Failed to fetch progress logs', { position: 'top-right' });
+                toast.error('Failed to fetch progress logs'+err, { position: 'top-right' });
             }
         };
         if (user?.role === 'member') {
@@ -118,7 +118,7 @@ const ProgressTracker = () => {
             toast.success('Progress log deleted', { position: 'top-right' });
         } catch (err) {
             setError('Failed to delete progress log');
-            toast.error('Failed to delete progress log', { position: 'top-right' });
+            toast.error('Failed to delete progress log'+err, { position: 'top-right' });
         }
     };
 

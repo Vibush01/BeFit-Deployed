@@ -19,7 +19,7 @@ const ViewBookings = () => {
                 setBookings(res.data);
             } catch (err) {
                 setError('Failed to fetch bookings');
-                toast.error('Failed to fetch bookings', { position: 'top-right' });
+                toast.error('Failed to fetch bookings'+err, { position: 'top-right' });
             }
         };
 

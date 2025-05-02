@@ -49,7 +49,7 @@ const Announcements = () => {
                 setAnnouncements(res.data);
             } catch (err) {
                 setError('Failed to fetch announcements');
-                toast.error('Failed to fetch announcements', { position: "top-right" });
+                toast.error('Failed to fetch announcements'+err, { position: "top-right" });
             }
         };
 

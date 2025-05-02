@@ -21,7 +21,7 @@ const GymDashboard = () => {
                 });
                 setRequests(res.data);
             } catch (err) {
-                toast.error('Failed to fetch join requests', { position: "top-right" });
+                toast.error('Failed to fetch join requests'+err, { position: "top-right" });
             }
         };
 
@@ -34,7 +34,7 @@ const GymDashboard = () => {
                     });
                     setAnnouncements(res.data);
                 } catch (err) {
-                    toast.error('Failed to fetch announcements', { position: "top-right" });
+                    toast.error('Failed to fetch announcements'+err, { position: "top-right" });
                 }
             }
         };
@@ -116,7 +116,7 @@ const GymDashboard = () => {
             setAnnouncements(announcements.filter((ann) => ann._id !== announcementId));
             toast.success('Announcement deleted', { position: "top-right" });
         } catch (err) {
-            toast.error('Failed to delete announcement', { position: "top-right" });
+            toast.error('Failed to delete announcement'+err, { position: "top-right" });
         }
     };
 

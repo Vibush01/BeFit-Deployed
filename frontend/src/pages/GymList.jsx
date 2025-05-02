@@ -17,7 +17,7 @@ const GymList = () => {
                 setGyms(res.data);
             } catch (err) {
                 setError('Failed to fetch gyms');
-                toast.error('Failed to fetch gyms', { position: 'top-right' });
+                toast.error('Failed to fetch gyms'+err, { position: 'top-right' });
             }
         };
         fetchGyms();

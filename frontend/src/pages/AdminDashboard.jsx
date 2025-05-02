@@ -30,7 +30,7 @@ const AdminDashboard = () => {
                 });
                 setGyms(res.data);
             } catch (err) {
-                toast.error('Failed to fetch gyms', { position: "top-right" });
+                toast.error('Failed to fetch gyms'+err, { position: "top-right" });
             }
         };
 
@@ -42,7 +42,7 @@ const AdminDashboard = () => {
                 });
                 setContactMessages(res.data);
             } catch (err) {
-                toast.error('Failed to fetch contact messages', { position: "top-right" });
+                toast.error('Failed to fetch contact messages'+err, { position: "top-right" });
             }
         };
 
@@ -54,7 +54,7 @@ const AdminDashboard = () => {
                 });
                 setAnalytics(res.data);
             } catch (err) {
-                toast.error('Failed to fetch analytics data', { position: "top-right" });
+                toast.error('Failed to fetch analytics data'+err, { position: "top-right" });
             }
         };
 
@@ -80,7 +80,7 @@ const AdminDashboard = () => {
             setSelectedGym(null);
             toast.success('Gym deleted successfully', { position: "top-right" });
         } catch (err) {
-            toast.error('Failed to delete gym', { position: "top-right" });
+            toast.error('Failed to delete gym'+err, { position: "top-right" });
         }
     };
 
@@ -93,7 +93,7 @@ const AdminDashboard = () => {
             setContactMessages(contactMessages.filter((message) => message._id !== messageId));
             toast.success('Contact message deleted successfully', { position: "top-right" });
         } catch (err) {
-            toast.error('Failed to delete contact message', { position: "top-right" });
+            toast.error('Failed to delete contact message'+err, { position: "top-right" });
         }
     };
 
