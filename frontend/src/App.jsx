@@ -26,6 +26,7 @@ import ViewBookings from './pages/ViewBookings';
 import BookSession from './pages/BookSession';
 import UpdateGym from './pages/UpdateGym';
 import AdminDashboard from './pages/AdminDashboard';
+import Home from './pages/Home';
 
 function App() {
     return (
@@ -33,7 +34,7 @@ function App() {
             <Router>
                 <Navbar />
                 <Routes>
-                    <Route path="/" element={<HomeRedirect />} />
+                    <Route path="/" element={<Home />} />
                     <Route path="/signup" element={<RoleSelection />} />
                     <Route path="/signup/admin" element={<AdminSignup />} />
                     <Route path="/signup/gym" element={<GymSignup />} />

@@ -1,9 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 
 const GymDashboard = () => {
-    const { user } = useContext(AuthContext);
+    const { user, userDetails } = useContext(AuthContext);
     const [requests, setRequests] = useState([]);
     const [announcements, setAnnouncements] = useState([]);
     const [announcementForm, setAnnouncementForm] = useState('');
@@ -38,11 +39,13 @@ const GymDashboard = () => {
             }
         };
 
-        if (user?.role === 'gym' || user?.role === 'trainer') {
+        if (user?.role === 'gym' || (user?.role === 'trainer' && userDetails?.gym)) {
             fetchRequests();
+        }
+        if (user?.role === 'gym') {
             fetchAnnouncements();
         }
-    }, [user]);
+    }, [user, userDetails]);
 
     const handleAccept = async (requestId) => {
         try {
@@ -123,6 +126,8 @@ const GymDashboard = () => {
         </div>;
     }
 
+    const isTrainerInGym = user?.role === 'trainer' && userDetails?.gym;
+
     return (
         <div className="min-h-screen bg-gray-100 py-8">
             <div className="container mx-auto">
@@ -131,6 +136,18 @@ const GymDashboard = () => {
                 </h1>
                 {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
                 {success && <p className="text-green-500 mb-4 text-center">{success}</p>}
+
+                {/* Quick Links for Trainers Not in a Gym */}
+                {user.role === 'trainer' && !isTrainerInGym && (
+                    <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+                        <h2 className="text-2xl font-bold mb-4">Quick Links</h2>
+                        <div className="flex flex-col space-y-4">
+                            <Link to="/gyms" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-center">
+                                Find Gym
+                            </Link>
+                        </div>
+                    </div>
+                )}
 
                 {/* Announcements Section for Gym Profile */}
                 {user.role === 'gym' && (
@@ -203,45 +220,47 @@ const GymDashboard = () => {
                     </div>
                 )}
 
-                {/* Join Requests Section */}
-                <div className="bg-white p-6 rounded-lg shadow-lg">
-                    <h2 className="text-2xl font-bold mb-4">{user.role === 'gym' ? 'Join Requests' : 'Member Join Requests'}</h2>
-                    {requests.length > 0 ? (
-                        <ul className="space-y-4">
-                            {requests.map((request) => (
-                                <li key={request._id} className="border-b pb-4">
-                                    <p className="text-gray-700">
-                                        <strong>{request.userModel}:</strong> {request.user.name} ({request.user.email})
-                                    </p>
-                                    {request.userModel === 'Member' && (
+                {/* Join Requests Section (Only for Gym or Trainer in a Gym) */}
+                {(user.role === 'gym' || isTrainerInGym) && (
+                    <div className="bg-white p-6 rounded-lg shadow-lg">
+                        <h2 className="text-2xl font-bold mb-4">{user.role === 'gym' ? 'Join Requests' : 'Member Join Requests'}</h2>
+                        {requests.length > 0 ? (
+                            <ul className="space-y-4">
+                                {requests.map((request) => (
+                                    <li key={request._id} className="border-b pb-4">
                                         <p className="text-gray-700">
-                                            <strong>Membership Duration:</strong> {request.membershipDuration}
+                                            <strong>{request.userModel}:</strong> {request.user.name} ({request.user.email})
                                         </p>
-                                    )}
-                                    <p className="text-gray-700">
-                                        <strong>Requested on:</strong> {new Date(request.createdAt).toLocaleDateString()}
-                                    </p>
-                                    <div className="mt-2">
-                                        <button
-                                            onClick={() => handleAccept(request._id)}
-                                            className="bg-green-600 text-white px-4 py-2 rounded mr-2 hover:bg-green-700"
-                                        >
-                                            Accept
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeny(request._id)}
-                                            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                                        >
-                                            Deny
-                                        </button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-gray-700 text-center">No pending join requests</p>
-                    )}
-                </div>
+                                        {request.userModel === 'Member' && (
+                                            <p className="text-gray-700">
+                                                <strong>Membership Duration:</strong> {request.membershipDuration}
+                                            </p>
+                                        )}
+                                        <p className="text-gray-700">
+                                            <strong>Requested on:</strong> {new Date(request.createdAt).toLocaleDateString()}
+                                        </p>
+                                        <div className="mt-2">
+                                            <button
+                                                onClick={() => handleAccept(request._id)}
+                                                className="bg-green-600 text-white px-4 py-2 rounded mr-2 hover:bg-green-700"
+                                            >
+                                                Accept
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeny(request._id)}
+                                                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                            >
+                                                Deny
+                                            </button>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-gray-700 text-center">No pending join requests</p>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

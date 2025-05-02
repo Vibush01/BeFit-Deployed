@@ -11,6 +11,7 @@ const AdminDashboard = () => {
     const { user } = useContext(AuthContext);
     const [gyms, setGyms] = useState([]);
     const [selectedGym, setSelectedGym] = useState(null);
+    const [contactMessages, setContactMessages] = useState([]);
     const [analytics, setAnalytics] = useState({
         pageViews: [],
         userDistribution: [],
@@ -31,6 +32,18 @@ const AdminDashboard = () => {
             }
         };
 
+        const fetchContactMessages = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.get('http://localhost:5000/api/contact/messages', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setContactMessages(res.data);
+            } catch (err) {
+                setError('Failed to fetch contact messages');
+            }
+        };
+
         const fetchAnalytics = async () => {
             try {
                 const token = localStorage.getItem('token');
@@ -45,6 +58,7 @@ const AdminDashboard = () => {
 
         if (user?.role === 'admin') {
             fetchGyms();
+            fetchContactMessages();
             fetchAnalytics();
         }
     }, [user]);
@@ -66,21 +80,23 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleDeleteMessage = async (messageId) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.delete(`http://localhost:5000/api/contact/messages/${messageId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setContactMessages(contactMessages.filter((message) => message._id !== messageId));
+        } catch (err) {
+            setError('Failed to delete contact message');
+        }
+    };
+
     if (user?.role !== 'admin') {
         return <div className="min-h-screen bg-gray-100 flex items-center justify-center">
             <p className="text-red-500">Access denied. This page is only for Admins.</p>
         </div>;
     }
-
-    // Mock data for Contact Messages and Gym Reviews
-    const contactMessages = [
-        { name: 'Vivek Kumar', email: 'testing@gmail.com', phone: '1234567890', subject: 'Test', message: 'Testing contact form', date: '4/16/2025, 10:34:42 AM' },
-        { name: 'John Doe', email: 'johndoe@example.com', phone: '123-456-7890', subject: 'Inquiry', message: 'I have a question about your services', date: '4/14/2025, 8:20:36 PM' },
-    ];
-
-    const gymReviews = [
-        { gym: 'FitZone', rating: 5, comment: 'Fantastic gym!', date: '4/17/2025, 8:13 PM' },
-    ];
 
     // Prepare chart data
     const pageViewsData = {
@@ -206,7 +222,7 @@ const AdminDashboard = () => {
                     </div>
                 )}
 
-                {/* Contact Messages (Mock Data) */}
+                {/* Contact Messages */}
                 <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
                     <h2 className="text-2xl font-bold mb-4">Contact Messages</h2>
                     {contactMessages.length > 0 ? (
@@ -224,16 +240,19 @@ const AdminDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {contactMessages.map((message, index) => (
-                                        <tr key={index} className="border-t">
+                                    {contactMessages.map((message) => (
+                                        <tr key={message._id} className="border-t">
                                             <td className="p-2">{message.name}</td>
                                             <td className="p-2">{message.email}</td>
                                             <td className="p-2">{message.phone}</td>
                                             <td className="p-2">{message.subject}</td>
                                             <td className="p-2">{message.message}</td>
-                                            <td className="p-2">{message.date}</td>
+                                            <td className="p-2">{new Date(message.createdAt).toLocaleString()}</td>
                                             <td className="p-2">
-                                                <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                                                <button
+                                                    onClick={() => handleDeleteMessage(message._id)}
+                                                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                                >
                                                     Delete
                                                 </button>
                                             </td>
@@ -247,72 +266,49 @@ const AdminDashboard = () => {
                     )}
                 </div>
 
-                {/* Gym Reviews (Mock Data) */}
-                <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-                    <h2 className="text-2xl font-bold mb-4">Gym Reviews</h2>
-                    {gymReviews.length > 0 ? (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead>
-                                    <tr>
-                                        <th className="p-2">Gym</th>
-                                        <th className="p-2">Rating</th>
-                                        <th className="p-2">Comment</th>
-                                        <th className="p-2">Created On</th>
-                                        <th className="p-2">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {gymReviews.map((review, index) => (
-                                        <tr key={index} className="border-t">
-                                            <td className="p-2">{review.gym}</td>
-                                            <td className="p-2">{review.rating} stars</td>
-                                            <td className="p-2">{review.comment}</td>
-                                            <td className="p-2">{review.date}</td>
-                                            <td className="p-2">
-                                                <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (
-                        <p className="text-gray-700 text-center">No gym reviews</p>
-                    )}
-                </div>
-
                 {/* Analytics Overview (Charts) */}
-                <div className="bg-white p-6 rounded-lg shadow-lg mb-8 flex space-x-4">
-                    <div className="flex-1">
-                        <h2 className="text-2xl font-bold mb-4">Analytics Overview</h2>
-                        <div className="mb-4">
+                <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+                    <h2 className="text-2xl font-bold mb-4">Analytics Overview</h2>
+                    <div className="flex flex-col md:flex-row md:space-x-4">
+                        <div className="flex-1 mb-4 md:mb-0">
                             <h3 className="text-lg font-semibold mb-2">Page Views</h3>
-                            <Bar
-                                data={pageViewsData}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        title: { display: true, text: 'Page Views' },
-                                    },
-                                }}
-                            />
+                            <div style={{ height: '200px' }}>
+                                <Bar
+                                    data={pageViewsData}
+                                    options={{
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                            legend: { position: 'top' },
+                                            title: { display: true, text: 'Page Views' },
+                                        },
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    stepSize: 1,
+                                                },
+                                            },
+                                        },
+                                    }}
+                                />
+                            </div>
                         </div>
-                        <div>
+                        <div className="flex-1">
                             <h3 className="text-lg font-semibold mb-2">User Distribution</h3>
-                            <Pie
-                                data={userDistributionData}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        title: { display: true, text: 'User Distribution' },
-                                    },
-                                }}
-                            />
+                            <div style={{ height: '200px' }}>
+                                <Pie
+                                    data={userDistributionData}
+                                    options={{
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                            legend: { position: 'top' },
+                                            title: { display: true, text: 'User Distribution' },
+                                        },
+                                    }}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
