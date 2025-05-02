@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
 
 const RequestPlan = () => {
     const { user } = useContext(AuthContext);
@@ -22,7 +23,7 @@ const RequestPlan = () => {
                 const gymRes = await axios.get(`http://localhost:5000/api/gym/${gymId}`);
                 setTrainers(gymRes.data.trainers);
             } catch (err) {
-                toast.error(err+'Failed to fetch trainers', { position: "top-right" });
+                toast.error('Failed to fetch trainers', { position: "top-right" });
             }
         };
 
@@ -34,7 +35,7 @@ const RequestPlan = () => {
                 });
                 setRequests(res.data);
             } catch (err) {
-                toast.error(err+'Failed to fetch plan requests', { position: "top-right" });
+                toast.error('Failed to fetch plan requests', { position: "top-right" });
             }
         };
 
@@ -69,7 +70,7 @@ const RequestPlan = () => {
 
                 setPlans(combinedPlans);
             } catch (err) {
-                toast.error(err+'Failed to fetch plans', { position: "top-right" });
+                toast.error('Failed to fetch plans', { position: "top-right" });
             }
         };
 
@@ -102,26 +103,65 @@ const RequestPlan = () => {
         }
     };
 
+    // Animation Variants
+    const fadeIn = {
+        hidden: { opacity: 0, y: 30 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
+    const zoomIn = {
+        hidden: { opacity: 0, scale: 0.9 },
+        visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
+    const buttonHover = {
+        hover: { scale: 1.05, boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)', transition: { duration: 0.3 } },
+    };
+
     if (user?.role !== 'member') {
-        return <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-            <p className="text-red-500">Access denied. This page is only for Members.</p>
-        </div>;
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4">
+                <motion.p
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="text-red-500 text-lg sm:text-xl font-semibold text-center"
+                >
+                    Access denied. This page is only for Members.
+                </motion.p>
+            </div>
+        );
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 py-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
             <div className="container mx-auto">
-                <h1 className="text-3xl font-bold mb-6 text-center">Request Workout & Diet Plan</h1>
+                <motion.h1
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="text-3xl sm:text-4xl font-bold mb-8 text-center text-gray-900 tracking-tight"
+                >
+                    Request Workout & Diet Plan
+                </motion.h1>
 
                 {/* Request a Plan */}
-                <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-                    <h2 className="text-2xl font-bold mb-4">Request a Plan</h2>
-                    <div className="mb-4">
-                        <label className="block text-gray-700">Select Trainer</label>
+                <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeIn}
+                    className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl mb-8"
+                >
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Request a Plan</h2>
+                    <motion.div variants={fadeIn} className="mb-6">
+                        <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                            Select Trainer
+                        </label>
                         <select
                             value={selectedTrainer}
                             onChange={(e) => setSelectedTrainer(e.target.value)}
-                            className="w-full p-2 border rounded"
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                         >
                             <option value="">Select a trainer</option>
                             {trainers.map((trainer) => (
@@ -130,76 +170,121 @@ const RequestPlan = () => {
                                 </option>
                             ))}
                         </select>
-                    </div>
-                    <div className="mb-4">
-                        <label className="block text-gray-700">Request Type</label>
+                    </motion.div>
+                    <motion.div variants={fadeIn} className="mb-6">
+                        <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                            Request Type
+                        </label>
                         <select
                             value={requestType}
                             onChange={(e) => setRequestType(e.target.value)}
-                            className="w-full p-2 border rounded"
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                         >
                             <option value="workout">Workout Plan</option>
                             <option value="diet">Diet Plan</option>
                         </select>
-                    </div>
-                    <button
+                    </motion.div>
+                    <motion.button
                         onClick={handleRequest}
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        whileHover="hover"
+                        variants={buttonHover}
+                        className="w-full bg-blue-600 text-white p-4 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 text-sm sm:text-base"
+                        aria-label="Send Plan Request"
                     >
                         Send Request
-                    </button>
-                </div>
+                    </motion.button>
+                </motion.div>
 
                 {/* Your Plan Requests */}
-                <div className="bg-gray-100 p-6 rounded-lg shadow-lg mb-8">
-                    <h2 className="text-2xl font-bold mb-4">Your Plan Requests</h2>
+                <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeIn}
+                    className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl mb-8"
+                >
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Your Plan Requests</h2>
                     {requests.length > 0 ? (
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left">
+                            <table className="w-full text-left text-sm sm:text-base">
                                 <thead>
-                                    <tr>
-                                        <th className="p-2">Trainer</th>
-                                        <th className="p-2">Gym</th>
-                                        <th className="p-2">Status</th>
-                                        <th className="p-2">Requested On</th>
+                                    <tr className="bg-gray-50">
+                                        <th className="p-3 sm:p-4">Trainer</th>
+                                        <th className="p-3 sm:p-4">Gym</th>
+                                        <th className="p-3 sm:p-4">Request Type</th>
+                                        <th className="p-3 sm:p-4">Status</th>
+                                        <th className="p-3 sm:p-4">Requested On</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {requests.map((request) => (
-                                        <tr key={request._id} className="border-t">
-                                            <td className="p-2">{request.trainer.name} ({request.trainer.email})</td>
-                                            <td className="p-2">{request.gym.gymName}</td>
-                                            <td className="p-2">{request.status}</td>
-                                            <td className="p-2">{new Date(request.createdAt).toLocaleString()}</td>
-                                        </tr>
+                                        <motion.tr
+                                            key={request._id}
+                                            className="border-b hover:bg-gray-50 transition-all duration-300"
+                                            initial="hidden"
+                                            whileInView="visible"
+                                            viewport={{ once: true }}
+                                            variants={zoomIn}
+                                        >
+                                            <td className="p-3 sm:p-4 font-medium text-gray-800">
+                                                {request.trainer.name} ({request.trainer.email})
+                                            </td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{request.gym.gymName}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{request.requestType.charAt(0).toUpperCase() + request.requestType.slice(1)} Plan</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{request.status}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{new Date(request.createdAt).toLocaleString()}</td>
+                                        </motion.tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
                     ) : (
-                        <p className="text-gray-700 text-center">No plan requests yet</p>
+                        <p className="text-gray-700 text-center text-sm sm:text-base">No plan requests yet</p>
                     )}
-                </div>
+                </motion.div>
 
                 {/* Your Plans */}
-                <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
-                    <h2 className="text-2xl font-bold mb-4">Your Plans</h2>
+                <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeIn}
+                    className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl"
+                >
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Your Plans</h2>
                     {plans.length > 0 ? (
                         <ul className="space-y-4">
                             {plans.map((plan, index) => (
-                                <li key={index} className="border-b pb-4">
-                                    <p className="text-gray-700"><strong>Trainer:</strong> {plan.trainer.name} ({plan.trainer.email})</p>
-                                    <p className="text-gray-700"><strong>Gym:</strong> {plan.gym.gymName}</p>
-                                    <p className="text-gray-700"><strong>{plan.type}:</strong> {plan.title}</p>
-                                    <p className="text-gray-700"><strong>Details:</strong> {plan.description}</p>
-                                    <p className="text-gray-700"><strong>Received On:</strong> {new Date(plan.receivedOn).toLocaleString()}</p>
-                                </li>
+                                <motion.li
+                                    key={index}
+                                    className="border border-gray-200 p-4 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={{ once: true }}
+                                    variants={zoomIn}
+                                >
+                                    <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                        <strong>Trainer:</strong> {plan.trainer.name} ({plan.trainer.email})
+                                    </p>
+                                    <p className="text-gray-600 text-sm sm:text-base">
+                                        <strong>Gym:</strong> {plan.gym.gymName}
+                                    </p>
+                                    <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                        <strong>{plan.type}:</strong> {plan.title}
+                                    </p>
+                                    <p className="text-gray-600 text-sm sm:text-base">
+                                        <strong>Details:</strong> {plan.description}
+                                    </p>
+                                    <p className="text-gray-600 text-sm sm:text-base">
+                                        <strong>Received On:</strong> {new Date(plan.receivedOn).toLocaleString()}
+                                    </p>
+                                </motion.li>
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-gray-700 text-center">No plans received yet</p>
+                        <p className="text-gray-700 text-center text-sm sm:text-base">No plans received yet</p>
                     )}
-                </div>
+                </motion.div>
             </div>
         </div>
     );

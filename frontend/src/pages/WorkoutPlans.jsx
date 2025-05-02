@@ -1,6 +1,8 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
 
 const WorkoutPlans = () => {
     const { user } = useContext(AuthContext);
@@ -40,7 +42,8 @@ const WorkoutPlans = () => {
                 });
                 setDietPlans(dietRes.data);
             } catch (err) {
-                setError('Failed to fetch plans'+err);
+                setError('Failed to fetch plans');
+                toast.error('Failed to fetch plans', { position: 'top-right' });
             }
         };
 
@@ -52,7 +55,8 @@ const WorkoutPlans = () => {
                 });
                 setRequests(res.data);
             } catch (err) {
-                setError('Failed to fetch plan requests'+err);
+                setError('Failed to fetch plan requests');
+                toast.error('Failed to fetch plan requests', { position: 'top-right' });
             }
         };
 
@@ -66,7 +70,8 @@ const WorkoutPlans = () => {
                 const gymRes = await axios.get(`http://localhost:5000/api/gym/${gymId}`);
                 setMembers(gymRes.data.members);
             } catch (err) {
-                setError('Failed to fetch members'+err);
+                setError('Failed to fetch members');
+                toast.error('Failed to fetch members', { position: 'top-right' });
             }
         };
 
@@ -144,6 +149,7 @@ const WorkoutPlans = () => {
                 });
                 setPlans(plans.map((plan) => (plan._id === editWorkoutId ? res.data.workoutPlan : plan)));
                 setSuccess('Workout plan updated');
+                toast.success('Workout plan updated', { position: 'top-right' });
                 setEditWorkoutId(null);
             } else {
                 const res = await axios.post('http://localhost:5000/api/trainer/workout-plans', data, {
@@ -151,6 +157,7 @@ const WorkoutPlans = () => {
                 });
                 setPlans([res.data.workoutPlan, ...plans]);
                 setSuccess('Workout plan created');
+                toast.success('Workout plan created', { position: 'top-right' });
             }
 
             setWorkoutForm({
@@ -161,6 +168,7 @@ const WorkoutPlans = () => {
             });
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to save workout plan');
+            toast.error(err.response?.data?.message || 'Failed to save workout plan', { position: 'top-right' });
         }
     };
 
@@ -181,6 +189,7 @@ const WorkoutPlans = () => {
                 });
                 setDietPlans(dietPlans.map((plan) => (plan._id === editDietId ? res.data.dietPlan : plan)));
                 setSuccess('Diet plan updated');
+                toast.success('Diet plan updated', { position: 'top-right' });
                 setEditDietId(null);
             } else {
                 const res = await axios.post('http://localhost:5000/api/trainer/diet-plans', data, {
@@ -188,6 +197,7 @@ const WorkoutPlans = () => {
                 });
                 setDietPlans([res.data.dietPlan, ...dietPlans]);
                 setSuccess('Diet plan created');
+                toast.success('Diet plan created', { position: 'top-right' });
             }
 
             setDietForm({
@@ -198,6 +208,7 @@ const WorkoutPlans = () => {
             });
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to save diet plan');
+            toast.error(err.response?.data?.message || 'Failed to save diet plan', { position: 'top-right' });
         }
     };
 
@@ -231,8 +242,10 @@ const WorkoutPlans = () => {
             });
             setPlans(plans.filter((plan) => plan._id !== id));
             setSuccess('Workout plan deleted');
+            toast.success('Workout plan deleted', { position: 'top-right' });
         } catch (err) {
-            setError('Failed to delete workout plan'+err);
+            setError('Failed to delete workout plan');
+            toast.error('Failed to delete workout plan', { position: 'top-right' });
         }
     };
 
@@ -244,8 +257,10 @@ const WorkoutPlans = () => {
             });
             setDietPlans(dietPlans.filter((plan) => plan._id !== id));
             setSuccess('Diet plan deleted');
+            toast.success('Diet plan deleted', { position: 'top-right' });
         } catch (err) {
-            setError('Failed to delete diet plan'+err);
+            setError('Failed to delete diet plan');
+            toast.error('Failed to delete diet plan', { position: 'top-right' });
         }
     };
 
@@ -257,104 +272,198 @@ const WorkoutPlans = () => {
             });
             setRequests(requests.map((req) => (req._id === requestId ? res.data.planRequest : req)));
             setSuccess(`Request ${action}d`);
+            toast.success(`Request ${action}d`, { position: 'top-right' });
         } catch (err) {
             setError(err.response?.data?.message || `Failed to ${action} request`);
+            toast.error(err.response?.data?.message || `Failed to ${action} request`, { position: 'top-right' });
         }
     };
 
+    // Animation Variants
+    const fadeIn = {
+        hidden: { opacity: 0, y: 30 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
+    const zoomIn = {
+        hidden: { opacity: 0, scale: 0.9 },
+        visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
+    const buttonHover = {
+        hover: { scale: 1.05, boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)', transition: { duration: 0.3 } },
+    };
+
     if (user?.role !== 'trainer') {
-        return <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-            <p className="text-red-500">Access denied. This page is only for Trainers.</p>
-        </div>;
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4">
+                <motion.p
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="text-red-500 text-lg sm:text-xl font-semibold text-center"
+                >
+                    Access denied. This page is only for Trainers.
+                </motion.p>
+            </div>
+        );
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 py-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
             <div className="container mx-auto">
-                <h1 className="text-3xl font-bold mb-6 text-center">Workout & Diet Plans</h1>
-                {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-                {success && <p className="text-green-500 mb-4 text-center">{success}</p>}
+                <motion.h1
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="text-3xl sm:text-4xl font-bold mb-8 text-center text-gray-900 tracking-tight"
+                >
+                    Workout & Diet Plans
+                </motion.h1>
+                {error && (
+                    <motion.p
+                        initial="hidden"
+                        animate="visible"
+                        variants={fadeIn}
+                        className="text-red-500 mb-6 text-center text-sm sm:text-base"
+                    >
+                        {error}
+                    </motion.p>
+                )}
+                {success && (
+                    <motion.p
+                        initial="hidden"
+                        animate="visible"
+                        variants={fadeIn}
+                        className="text-green-500 mb-6 text-center text-sm sm:text-base"
+                    >
+                        {success}
+                    </motion.p>
+                )}
 
                 {/* Plan Requests */}
-                <div className="bg-gray-100 p-6 rounded-lg shadow-lg mb-8">
-                    <h2 className="text-2xl font-bold mb-4">Plan Requests</h2>
+                <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeIn}
+                    className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl mb-8"
+                >
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Plan Requests</h2>
                     {requests.length > 0 ? (
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left">
+                            <table className="w-full text-left text-sm sm:text-base">
                                 <thead>
-                                    <tr>
-                                        <th className="p-2">Member</th>
-                                        <th className="p-2">Gym</th>
-                                        <th className="p-2">Request Type</th>
-                                        <th className="p-2">Status</th>
-                                        <th className="p-2">Requested On</th>
-                                        <th className="p-2">Actions</th>
+                                    <tr className="bg-gray-50">
+                                        <th className="p-3 sm:p-4">Member</th>
+                                        <th className="p-3 sm:p-4">Gym</th>
+                                        <th className="p-3 sm:p-4">Request Type</th>
+                                        <th className="p-3 sm:p-4">Status</th>
+                                        <th className="p-3 sm:p-4">Requested On</th>
+                                        <th className="p-3 sm:p-4">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {requests.map((request) => (
-                                        <tr key={request._id} className="border-t">
-                                            <td className="p-2">{request.member.name} ({request.member.email})</td>
-                                            <td className="p-2">{request.gym.gymName}</td>
-                                            <td className="p-2">{request.requestType.charAt(0).toUpperCase() + request.requestType.slice(1)} Plan</td>
-                                            <td className="p-2">{request.status}</td>
-                                            <td className="p-2">{new Date(request.createdAt).toLocaleString()}</td>
-                                            <td className="p-2">
+                                        <motion.tr
+                                            key={request._id}
+                                            className="border-b hover:bg-gray-50 transition-all duration-300"
+                                            initial="hidden"
+                                            whileInView="visible"
+                                            viewport={{ once: true }}
+                                            variants={zoomIn}
+                                        >
+                                            <td className="p-3 sm:p-4 font-medium text-gray-800">
+                                                {request.member.name} ({request.member.email})
+                                            </td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{request.gym.gymName}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{request.requestType.charAt(0).toUpperCase() + request.requestType.slice(1)} Plan</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{request.status}</td>
+                                            <td className="p-3 sm:p-4 text-gray-600">{new Date(request.createdAt).toLocaleString()}</td>
+                                            <td className="p-3 sm:p-4 flex space-x-2">
                                                 {request.status === 'pending' && (
                                                     <>
-                                                        <button
+                                                        <motion.button
                                                             onClick={() => handleRequestAction(request._id, 'approve')}
-                                                            className="bg-green-600 text-white px-4 py-2 rounded mr-2 hover:bg-green-700"
+                                                            whileHover="hover"
+                                                            variants={buttonHover}
+                                                            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all duration-300 text-sm sm:text-base"
+                                                            aria-label="Approve Request"
                                                         >
                                                             Approve
-                                                        </button>
-                                                        <button
+                                                        </motion.button>
+                                                        <motion.button
                                                             onClick={() => handleRequestAction(request._id, 'deny')}
-                                                            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                                            whileHover="hover"
+                                                            variants={buttonHover}
+                                                            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all duration-300 text-sm sm:text-base"
+                                                            aria-label="Deny Request"
                                                         >
                                                             Deny
-                                                        </button>
+                                                        </motion.button>
                                                     </>
                                                 )}
                                             </td>
-                                        </tr>
+                                        </motion.tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
                     ) : (
-                        <p className="text-gray-700 text-center">No plan requests yet</p>
+                        <p className="text-gray-700 text-center text-sm sm:text-base">No plan requests yet</p>
                     )}
-                </div>
+                </motion.div>
 
                 {/* Tabs for Workout and Diet Plans */}
-                <div className="mb-4">
-                    <button
+                <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeIn}
+                    className="mb-6 flex space-x-2"
+                >
+                    <motion.button
                         onClick={() => setActiveTab('workout')}
-                        className={`px-4 py-2 mr-2 rounded ${activeTab === 'workout' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                        whileHover="hover"
+                        variants={buttonHover}
+                        className={`px-4 py-2 rounded-lg text-sm sm:text-base font-semibold ${activeTab === 'workout' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}
+                        aria-label="Show Workout Plans"
                     >
                         Workout Plans
-                    </button>
-                    <button
+                    </motion.button>
+                    <motion.button
                         onClick={() => setActiveTab('diet')}
-                        className={`px-4 py-2 rounded ${activeTab === 'diet' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                        whileHover="hover"
+                        variants={buttonHover}
+                        className={`px-4 py-2 rounded-lg text-sm sm:text-base font-semibold ${activeTab === 'diet' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}
+                        aria-label="Show Diet Plans"
                     >
                         Diet Plans
-                    </button>
-                </div>
+                    </motion.button>
+                </motion.div>
 
                 {/* Workout Plan Form */}
                 {activeTab === 'workout' && (
-                    <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-                        <h2 className="text-2xl font-bold mb-4">{editWorkoutId ? 'Edit Workout Plan' : 'Create Workout Plan'}</h2>
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeIn}
+                        className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl mb-8"
+                    >
+                        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">
+                            {editWorkoutId ? 'Edit Workout Plan' : 'Create Workout Plan'}
+                        </h2>
                         <form onSubmit={handleWorkoutSubmit}>
-                            <div className="mb-4">
-                                <label className="block text-gray-700">Member</label>
+                            <motion.div variants={fadeIn} className="mb-6">
+                                <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                    Member
+                                </label>
                                 <select
                                     name="memberId"
                                     value={workoutForm.memberId}
                                     onChange={handleWorkoutChange}
-                                    className="w-full p-2 border rounded"
+                                    className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                     required
                                 >
                                     <option value="">Select a member</option>
@@ -364,102 +473,132 @@ const WorkoutPlans = () => {
                                         </option>
                                     ))}
                                 </select>
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-gray-700">Title</label>
+                            </motion.div>
+                            <motion.div variants={fadeIn} className="mb-6">
+                                <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                    Title
+                                </label>
                                 <input
                                     type="text"
                                     name="title"
                                     value={workoutForm.title}
                                     onChange={handleWorkoutChange}
-                                    className="w-full p-2 border rounded"
+                                    className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                     required
                                 />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-gray-700">Description</label>
+                            </motion.div>
+                            <motion.div variants={fadeIn} className="mb-6">
+                                <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                    Description
+                                </label>
                                 <textarea
                                     name="description"
                                     value={workoutForm.description}
                                     onChange={handleWorkoutChange}
-                                    className="w-full p-2 border rounded"
+                                    className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                     rows="3"
                                 />
-                            </div>
-                            <div className="mb-4">
-                                <h3 className="text-lg font-bold mb-2">Exercises</h3>
+                            </motion.div>
+                            <div className="mb-6">
+                                <h3 className="text-lg sm:text-xl font-bold mb-2 text-gray-800">Exercises</h3>
                                 {workoutForm.exercises.map((exercise, index) => (
-                                    <div key={index} className="mb-2 p-4 border rounded">
-                                        <div className="mb-2">
-                                            <label className="block text-gray-700">Exercise Name</label>
+                                    <motion.div
+                                        key={index}
+                                        className="mb-4 p-4 border border-gray-200 rounded-lg"
+                                        initial="hidden"
+                                        whileInView="visible"
+                                        viewport={{ once: true }}
+                                        variants={zoomIn}
+                                    >
+                                        <motion.div variants={fadeIn} className="mb-4">
+                                            <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                                Exercise Name
+                                            </label>
                                             <input
                                                 type="text"
                                                 name={`exercise.name.${index}`}
                                                 value={exercise.name}
                                                 onChange={(e) => handleWorkoutChange(e, index)}
-                                                className="w-full p-2 border rounded"
+                                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                                 required
                                             />
-                                        </div>
-                                        <div className="mb-2">
-                                            <label className="block text-gray-700">Sets</label>
+                                        </motion.div>
+                                        <motion.div variants={fadeIn} className="mb-4">
+                                            <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                                Sets
+                                            </label>
                                             <input
                                                 type="number"
                                                 name={`exercise.sets.${index}`}
                                                 value={exercise.sets}
                                                 onChange={(e) => handleWorkoutChange(e, index)}
-                                                className="w-full p-2 border rounded"
+                                                min="1"
+                                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                                 required
                                             />
-                                        </div>
-                                        <div className="mb-2">
-                                            <label className="block text-gray-700">Reps</label>
+                                        </motion.div>
+                                        <motion.div variants={fadeIn} className="mb-4">
+                                            <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                                Reps
+                                            </label>
                                             <input
                                                 type="number"
                                                 name={`exercise.reps.${index}`}
                                                 value={exercise.reps}
                                                 onChange={(e) => handleWorkoutChange(e, index)}
-                                                className="w-full p-2 border rounded"
+                                                min="1"
+                                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                                 required
                                             />
-                                        </div>
-                                        <div className="mb-2">
-                                            <label className="block text-gray-700">Rest (e.g., 30 seconds)</label>
+                                        </motion.div>
+                                        <motion.div variants={fadeIn} className="mb-4">
+                                            <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                                Rest (e.g., 30 seconds)
+                                            </label>
                                             <input
                                                 type="text"
                                                 name={`exercise.rest.${index}`}
                                                 value={exercise.rest}
                                                 onChange={(e) => handleWorkoutChange(e, index)}
-                                                className="w-full p-2 border rounded"
+                                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                             />
-                                        </div>
+                                        </motion.div>
                                         {workoutForm.exercises.length > 1 && (
-                                            <button
+                                            <motion.button
                                                 type="button"
                                                 onClick={() => removeExercise(index)}
-                                                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                                whileHover="hover"
+                                                variants={buttonHover}
+                                                className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all duration-300 text-sm sm:text-base"
+                                                aria-label={`Remove Exercise ${index + 1}`}
                                             >
                                                 Remove Exercise
-                                            </button>
+                                            </motion.button>
                                         )}
-                                    </div>
+                                    </motion.div>
                                 ))}
-                                <button
+                                <motion.button
                                     type="button"
                                     onClick={addExercise}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mt-2"
+                                    whileHover="hover"
+                                    variants={buttonHover}
+                                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 text-sm sm:text-base mt-2"
+                                    aria-label="Add Exercise"
                                 >
                                     Add Exercise
-                                </button>
+                                </motion.button>
                             </div>
-                            <button
+                            <motion.button
                                 type="submit"
-                                className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+                                whileHover="hover"
+                                variants={buttonHover}
+                                className="w-full bg-blue-600 text-white p-4 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 text-sm sm:text-base"
+                                aria-label={editWorkoutId ? 'Update Workout Plan' : 'Create Workout Plan'}
                             >
                                 {editWorkoutId ? 'Update Plan' : 'Create Plan'}
-                            </button>
+                            </motion.button>
                             {editWorkoutId && (
-                                <button
+                                <motion.button
                                     type="button"
                                     onClick={() => {
                                         setEditWorkoutId(null);
@@ -470,27 +609,40 @@ const WorkoutPlans = () => {
                                             exercises: [{ name: '', sets: '', reps: '', rest: '' }],
                                         });
                                     }}
-                                    className="w-full bg-gray-500 text-white p-2 rounded mt-2 hover:bg-gray-600"
+                                    whileHover="hover"
+                                    variants={buttonHover}
+                                    className="w-full bg-gray-500 text-white p-4 rounded-lg mt-2 hover:bg-gray-600 transition-all duration-300 text-sm sm:text-base font-semibold"
+                                    aria-label="Cancel Edit"
                                 >
                                     Cancel
-                                </button>
+                                </motion.button>
                             )}
                         </form>
-                    </div>
+                    </motion.div>
                 )}
 
                 {/* Diet Plan Form */}
                 {activeTab === 'diet' && (
-                    <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-                        <h2 className="text-2xl font-bold mb-4">{editDietId ? 'Edit Diet Plan' : 'Create Diet Plan'}</h2>
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeIn}
+                        className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl mb-8"
+                    >
+                        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">
+                            {editDietId ? 'Edit Diet Plan' : 'Create Diet Plan'}
+                        </h2>
                         <form onSubmit={handleDietSubmit}>
-                            <div className="mb-4">
-                                <label className="block text-gray-700">Member</label>
+                            <motion.div variants={fadeIn} className="mb-6">
+                                <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                    Member
+                                </label>
                                 <select
                                     name="memberId"
                                     value={dietForm.memberId}
                                     onChange={handleDietChange}
-                                    className="w-full p-2 border rounded"
+                                    className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                     required
                                 >
                                     <option value="">Select a member</option>
@@ -500,124 +652,164 @@ const WorkoutPlans = () => {
                                         </option>
                                     ))}
                                 </select>
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-gray-700">Title</label>
+                            </motion.div>
+                            <motion.div variants={fadeIn} className="mb-6">
+                                <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                    Title
+                                </label>
                                 <input
                                     type="text"
                                     name="title"
                                     value={dietForm.title}
                                     onChange={handleDietChange}
-                                    className="w-full p-2 border rounded"
+                                    className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                     required
                                 />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-gray-700">Description</label>
+                            </motion.div>
+                            <motion.div variants={fadeIn} className="mb-6">
+                                <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                    Description
+                                </label>
                                 <textarea
                                     name="description"
                                     value={dietForm.description}
                                     onChange={handleDietChange}
-                                    className="w-full p-2 border rounded"
+                                    className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                     rows="3"
                                 />
-                            </div>
-                            <div className="mb-4">
-                                <h3 className="text-lg font-bold mb-2">Meals</h3>
+                            </motion.div>
+                            <div className="mb-6">
+                                <h3 className="text-lg sm:text-xl font-bold mb-2 text-gray-800">Meals</h3>
                                 {dietForm.meals.map((meal, index) => (
-                                    <div key={index} className="mb-2 p-4 border rounded">
-                                        <div className="mb-2">
-                                            <label className="block text-gray-700">Meal Name</label>
+                                    <motion.div
+                                        key={index}
+                                        className="mb-4 p-4 border border-gray-200 rounded-lg"
+                                        initial="hidden"
+                                        whileInView="visible"
+                                        viewport={{ once: true }}
+                                        variants={zoomIn}
+                                    >
+                                        <motion.div variants={fadeIn} className="mb-4">
+                                            <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                                Meal Name
+                                            </label>
                                             <input
                                                 type="text"
                                                 name={`meal.name.${index}`}
                                                 value={meal.name}
                                                 onChange={(e) => handleDietChange(e, index)}
-                                                className="w-full p-2 border rounded"
+                                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                                 required
                                             />
-                                        </div>
-                                        <div className="mb-2">
-                                            <label className="block text-gray-700">Calories (kcal)</label>
+                                        </motion.div>
+                                        <motion.div variants={fadeIn} className="mb-4">
+                                            <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                                Calories (kcal)
+                                            </label>
                                             <input
                                                 type="number"
                                                 name={`meal.calories.${index}`}
                                                 value={meal.calories}
                                                 onChange={(e) => handleDietChange(e, index)}
-                                                className="w-full p-2 border rounded"
+                                                min="0"
+                                                step="0.1"
+                                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                                 required
                                             />
-                                        </div>
-                                        <div className="mb-2">
-                                            <label className="block text-gray-700">Protein (g)</label>
+                                        </motion.div>
+                                        <motion.div variants={fadeIn} className="mb-4">
+                                            <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                                Protein (g)
+                                            </label>
                                             <input
                                                 type="number"
                                                 name={`meal.protein.${index}`}
                                                 value={meal.protein}
                                                 onChange={(e) => handleDietChange(e, index)}
-                                                className="w-full p-2 border rounded"
+                                                min="0"
+                                                step="0.1"
+                                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                                 required
                                             />
-                                        </div>
-                                        <div className="mb-2">
-                                            <label className="block text-gray-700">Carbs (g)</label>
+                                        </motion.div>
+                                        <motion.div variants={fadeIn} className="mb-4">
+                                            <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                                Carbs (g)
+                                            </label>
                                             <input
                                                 type="number"
                                                 name={`meal.carbs.${index}`}
                                                 value={meal.carbs}
                                                 onChange={(e) => handleDietChange(e, index)}
-                                                className="w-full p-2 border rounded"
+                                                min="0"
+                                                step="0.1"
+                                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                                 required
                                             />
-                                        </div>
-                                        <div className="mb-2">
-                                            <label className="block text-gray-700">Fats (g)</label>
+                                        </motion.div>
+                                        <motion.div variants={fadeIn} className="mb-4">
+                                            <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                                Fats (g)
+                                            </label>
                                             <input
                                                 type="number"
                                                 name={`meal.fats.${index}`}
                                                 value={meal.fats}
                                                 onChange={(e) => handleDietChange(e, index)}
-                                                className="w-full p-2 border rounded"
+                                                min="0"
+                                                step="0.1"
+                                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text.sm sm:text-base transition-all duration-300"
                                                 required
                                             />
-                                        </div>
-                                        <div className="mb-2">
-                                            <label className="block text-gray-700">Time (e.g., 8:00 AM)</label>
+                                        </motion.div>
+                                        <motion.div variants={fadeIn} className="mb-4">
+                                            <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                                Time (e.g., 8:00 AM)
+                                            </label>
                                             <input
                                                 type="text"
                                                 name={`meal.time.${index}`}
                                                 value={meal.time}
                                                 onChange={(e) => handleDietChange(e, index)}
-                                                className="w-full p-2 border rounded"
+                                                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                             />
-                                        </div>
+                                        </motion.div>
                                         {dietForm.meals.length > 1 && (
-                                            <button
+                                            <motion.button
                                                 type="button"
                                                 onClick={() => removeMeal(index)}
-                                                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                                whileHover="hover"
+                                                variants={buttonHover}
+                                                className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all duration-300 text-sm sm:text-base"
+                                                aria-label={`Remove Meal ${index + 1}`}
                                             >
                                                 Remove Meal
-                                            </button>
+                                            </motion.button>
                                         )}
-                                    </div>
+                                    </motion.div>
                                 ))}
-                                <button
+                                <motion.button
                                     type="button"
                                     onClick={addMeal}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mt-2"
+                                    whileHover="hover"
+                                    variants={buttonHover}
+                                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 text-sm sm:text-base mt-2"
+                                    aria-label="Add Meal"
                                 >
                                     Add Meal
-                                </button>
+                                </motion.button>
                             </div>
-                            <button
+                            <motion.button
                                 type="submit"
-                                className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+                                whileHover="hover"
+                                variants={buttonHover}
+                                className="w-full bg-blue-600 text-white p-4 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 text-sm sm:text-base"
+                                aria-label={editDietId ? 'Update Diet Plan' : 'Create Diet Plan'}
                             >
                                 {editDietId ? 'Update Plan' : 'Create Plan'}
-                            </button>
+                            </motion.button>
                             {editDietId && (
-                                <button
+                                <motion.button
                                     type="button"
                                     onClick={() => {
                                         setEditDietId(null);
@@ -628,99 +820,184 @@ const WorkoutPlans = () => {
                                             meals: [{ name: '', calories: '', protein: '', carbs: '', fats: '', time: '' }],
                                         });
                                     }}
-                                    className="w-full bg-gray-500 text-white p-2 rounded mt-2 hover:bg-gray-600"
+                                    whileHover="hover"
+                                    variants={buttonHover}
+                                    className="w-full bg-gray-500 text-white p-4 rounded-lg mt-2 hover:bg-gray-600 transition-all duration-300 text-sm sm:text-base font-semibold"
+                                    aria-label="Cancel Edit"
                                 >
                                     Cancel
-                                </button>
+                                </motion.button>
                             )}
                         </form>
-                    </div>
+                    </motion.div>
                 )}
 
                 {/* Workout Plans List */}
                 {activeTab === 'workout' && (
-                    <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-                        <h2 className="text-2xl font-bold mb-4">Workout Plans</h2>
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeIn}
+                        className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl mb-8"
+                    >
+                        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Workout Plans</h2>
                         {plans.length > 0 ? (
                             <ul className="space-y-4">
                                 {plans.map((plan) => (
-                                    <li key={plan._id} className="border-b pb-4">
-                                        <p className="text-gray-700"><strong>Member:</strong> {plan.member.name} ({plan.member.email})</p>
-                                        <p className="text-gray-700"><strong>Title:</strong> {plan.title}</p>
-                                        <p className="text-gray-700"><strong>Description:</strong> {plan.description || 'N/A'}</p>
-                                        <p className="text-gray-700"><strong>Exercises:</strong></p>
-                                        <ul className="list-disc pl-5">
+                                    <motion.li
+                                        key={plan._id}
+                                        className="border border-gray-200 p-4 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                                        initial="hidden"
+                                        whileInView="visible"
+                                        viewport={{ once: true }}
+                                        variants={zoomIn}
+                                    >
+                                        <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                            <strong>Member:</strong> {plan.member.name} ({plan.member.email})
+                                        </p>
+                                        <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                            <strong>Title:</strong> {plan.title}
+                                        </p>
+                                        <p className="text-gray-600 text-sm sm:text-base">
+                                            <strong>Description:</strong> {plan.description || 'N/A'}
+                                        </p>
+                                        <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                            <strong>Exercises:</strong>
+                                        </p>
+                                        <ul className="space-y-2 mt-2">
                                             {plan.exercises.map((exercise, index) => (
-                                                <li key={index} className="text-gray-700">
-                                                    {exercise.name}: {exercise.sets} sets, {exercise.reps} reps, Rest: {exercise.rest || 'N/A'}
-                                                </li>
+                                                <motion.li
+                                                    key={index}
+                                                    className="border border-gray-200 p-2 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                                                    initial="hidden"
+                                                    whileInView="visible"
+                                                    viewport={{ once: true }}
+                                                    variants={zoomIn}
+                                                >
+                                                    <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                                        <strong>Exercise {index + 1}:</strong> {exercise.name}
+                                                    </p>
+                                                    <p className="text-gray-600 text-sm sm:text-base">
+                                                        <strong>Sets:</strong> {exercise.sets}, <strong>Reps:</strong> {exercise.reps}, <strong>Rest:</strong> {exercise.rest || 'N/A'}
+                                                    </p>
+                                                </motion.li>
                                             ))}
                                         </ul>
-                                        <p className="text-gray-700"><strong>Created:</strong> {new Date(plan.createdAt).toLocaleString()}</p>
-                                        <div className="mt-2">
-                                            <button
+                                        <p className="text-gray-600 text-sm sm:text-base mt-2">
+                                            <strong>Created:</strong> {new Date(plan.createdAt).toLocaleString()}
+                                        </p>
+                                        <div className="mt-3 flex space-x-2">
+                                            <motion.button
                                                 onClick={() => handleWorkoutEdit(plan)}
-                                                className="bg-yellow-500 text-white px-4 py-2 rounded mr-2 hover:bg-yellow-600"
+                                                whileHover="hover"
+                                                variants={buttonHover}
+                                                className="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300 text-sm sm:text-base"
+                                                aria-label="Edit Workout Plan"
                                             >
                                                 Edit
-                                            </button>
-                                            <button
+                                            </motion.button>
+                                            <motion.button
                                                 onClick={() => handleWorkoutDelete(plan._id)}
-                                                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                                whileHover="hover"
+                                                variants={buttonHover}
+                                                className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all duration-300 text-sm sm:text-base"
+                                                aria-label="Delete Workout Plan"
                                             >
                                                 Delete
-                                            </button>
+                                            </motion.button>
                                         </div>
-                                    </li>
+                                    </motion.li>
                                 ))}
                             </ul>
                         ) : (
-                            <p className="text-gray-700 text-center">No workout plans yet</p>
+                            <p className="text-gray-700 text-center text-sm sm:text-base">No workout plans yet</p>
                         )}
-                    </div>
+                    </motion.div>
                 )}
 
                 {/* Diet Plans List */}
                 {activeTab === 'diet' && (
-                    <div className="bg-white p-6 rounded-lg shadow-lg">
-                        <h2 className="text-2xl font-bold mb-4">Diet Plans</h2>
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeIn}
+                        className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl"
+                    >
+                        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Diet Plans</h2>
                         {dietPlans.length > 0 ? (
                             <ul className="space-y-4">
                                 {dietPlans.map((plan) => (
-                                    <li key={plan._id} className="border-b pb-4">
-                                        <p className="text-gray-700"><strong>Member:</strong> {plan.member.name} ({plan.member.email})</p>
-                                        <p className="text-gray-700"><strong>Title:</strong> {plan.title}</p>
-                                        <p className="text-gray-700"><strong>Description:</strong> {plan.description || 'N/A'}</p>
-                                        <p className="text-gray-700"><strong>Meals:</strong></p>
-                                        <ul className="list-disc pl-5">
+                                    <motion.li
+                                        key={plan._id}
+                                        className="border border-gray-200 p-4 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                                        initial="hidden"
+                                        whileInView="visible"
+                                        viewport={{ once: true }}
+                                        variants={zoomIn}
+                                    >
+                                        <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                            <strong>Member:</strong> {plan.member.name} ({plan.member.email})
+                                        </p>
+                                        <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                            <strong>Title:</strong> {plan.title}
+                                        </p>
+                                        <p className="text-gray-600 text-sm sm:text-base">
+                                            <strong>Description:</strong> {plan.description || 'N/A'}
+                                        </p>
+                                        <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                            <strong>Meals:</strong>
+                                        </p>
+                                        <ul className="space-y-2 mt-2">
                                             {plan.meals.map((meal, index) => (
-                                                <li key={index} className="text-gray-700">
-                                                    {meal.name}: {meal.calories} kcal, Protein: {meal.protein}g, Carbs: {meal.carbs}g, Fats: {meal.fats}g, Time: {meal.time || 'N/A'}
-                                                </li>
+                                                <motion.li
+                                                    key={index}
+                                                    className="border border-gray-200 p-2 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                                                    initial="hidden"
+                                                    whileInView="visible"
+                                                    viewport={{ once: true }}
+                                                    variants={zoomIn}
+                                                >
+                                                    <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                                        <strong>Meal {index + 1}:</strong> {meal.name}
+                                                    </p>
+                                                    <p className="text-gray-600 text-sm sm:text-base">
+                                                        <strong>Calories:</strong> {meal.calories} kcal, <strong>Protein:</strong> {meal.protein}g, <strong>Carbs:</strong> {meal.carbs}g, <strong>Fats:</strong> {meal.fats}g, <strong>Time:</strong> {meal.time || 'N/A'}
+                                                    </p>
+                                                </motion.li>
                                             ))}
                                         </ul>
-                                        <p className="text-gray-700"><strong>Created:</strong> {new Date(plan.createdAt).toLocaleString()}</p>
-                                        <div className="mt-2">
-                                            <button
+                                        <p className="text-gray-600 text-sm sm:text-base mt-2">
+                                            <strong>Created:</strong> {new Date(plan.createdAt).toLocaleString()}
+                                        </p>
+                                        <div className="mt-3 flex space-x-2">
+                                            <motion.button
                                                 onClick={() => handleDietEdit(plan)}
-                                                className="bg-yellow-500 text-white px-4 py-2 rounded mr-2 hover:bg-yellow-600"
+                                                whileHover="hover"
+                                                variants={buttonHover}
+                                                className="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300 text-sm sm:text-base"
+                                                aria-label="Edit Diet Plan"
                                             >
                                                 Edit
-                                            </button>
-                                            <button
+                                            </motion.button>
+                                            <motion.button
                                                 onClick={() => handleDietDelete(plan._id)}
-                                                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                                whileHover="hover"
+                                                variants={buttonHover}
+                                                className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all duration-300 text-sm sm:text-base"
+                                                aria-label="Delete Diet Plan"
                                             >
                                                 Delete
-                                            </button>
+                                            </motion.button>
                                         </div>
-                                    </li>
+                                    </motion.li>
                                 ))}
                             </ul>
                         ) : (
-                            <p className="text-gray-700 text-center">No diet plans yet</p>
+                            <p className="text-gray-700 text-center text-sm sm:text-base">No diet plans yet</p>
                         )}
-                    </div>
+                    </motion.div>
                 )}
             </div>
         </div>

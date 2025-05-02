@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
 
 const GymDashboard = () => {
     const { user, userDetails } = useContext(AuthContext);
@@ -20,7 +21,7 @@ const GymDashboard = () => {
                 });
                 setRequests(res.data);
             } catch (err) {
-                toast.error(err+'Failed to fetch join requests', { position: "top-right" });
+                toast.error('Failed to fetch join requests', { position: "top-right" });
             }
         };
 
@@ -33,7 +34,7 @@ const GymDashboard = () => {
                     });
                     setAnnouncements(res.data);
                 } catch (err) {
-                    toast.error(err+'Failed to fetch announcements', { position: "top-right" });
+                    toast.error('Failed to fetch announcements', { position: "top-right" });
                 }
             }
         };
@@ -115,148 +116,240 @@ const GymDashboard = () => {
             setAnnouncements(announcements.filter((ann) => ann._id !== announcementId));
             toast.success('Announcement deleted', { position: "top-right" });
         } catch (err) {
-            toast.error(err+'Failed to delete announcement', { position: "top-right" });
+            toast.error('Failed to delete announcement', { position: "top-right" });
         }
     };
 
+    // Animation Variants
+    const fadeIn = {
+        hidden: { opacity: 0, y: 30 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
+    const zoomIn = {
+        hidden: { opacity: 0, scale: 0.9 },
+        visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
+    const buttonHover = {
+        hover: { scale: 1.05, boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)', transition: { duration: 0.3 } },
+    };
+
     if (user?.role !== 'gym' && user?.role !== 'trainer') {
-        return <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-            <p className="text-red-500">Access denied. This page is only for Gym Profiles and Trainers.</p>
-        </div>;
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4">
+                <motion.p
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="text-red-500 text-lg sm:text-xl font-semibold text-center"
+                >
+                    Access denied. This page is only for Gym Profiles and Trainers.
+                </motion.p>
+            </div>
+        );
     }
 
     const isTrainerInGym = user?.role === 'trainer' && userDetails?.gym;
 
     return (
-        <div className="min-h-screen bg-gray-100 py-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
             <div className="container mx-auto">
-                <h1 className="text-3xl font-bold mb-6 text-center">
+                <motion.h1
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="text-3xl sm:text-4xl font-bold mb-8 text-center text-gray-900 tracking-tight"
+                >
                     {user.role === 'gym' ? 'Gym Dashboard' : 'Trainer Dashboard'}
-                </h1>
+                </motion.h1>
 
                 {/* Quick Links for Trainers Not in a Gym */}
                 {user.role === 'trainer' && !isTrainerInGym && (
-                    <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-                        <h2 className="text-2xl font-bold mb-4">Quick Links</h2>
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeIn}
+                        className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl mb-8"
+                    >
+                        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Quick Links</h2>
                         <div className="flex flex-col space-y-4">
-                            <Link to="/gyms" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-center">
-                                Find Gym
-                            </Link>
+                            <motion.div whileHover="hover" variants={buttonHover}>
+                                <Link
+                                    to="/gyms"
+                                    className="block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 text-center text-sm sm:text-base font-semibold"
+                                >
+                                    Find Gym
+                                </Link>
+                            </motion.div>
                         </div>
-                    </div>
+                    </motion.div>
                 )}
 
                 {/* Announcements Section for Gym Profile */}
                 {user.role === 'gym' && (
                     <div className="mb-8">
-                        <div className="bg-gray-100 p-6 rounded-lg shadow-lg mb-8">
-                            <h2 className="text-2xl font-bold mb-4">{editAnnouncementId ? 'Edit Announcement' : 'Post Announcement'}</h2>
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={fadeIn}
+                            className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl mb-8"
+                        >
+                            <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">
+                                {editAnnouncementId ? 'Edit Announcement' : 'Post Announcement'}
+                            </h2>
                             <form onSubmit={handlePostAnnouncement}>
-                                <div className="mb-4">
-                                    <label className="block text-gray-700">Message</label>
+                                <motion.div variants={fadeIn} className="mb-6">
+                                    <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                        Message
+                                    </label>
                                     <textarea
                                         value={announcementForm}
                                         onChange={(e) => setAnnouncementForm(e.target.value)}
-                                        className="w-full p-2 border rounded"
+                                        className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                         rows="3"
                                         required
                                     />
-                                </div>
-                                <button
+                                </motion.div>
+                                <motion.button
                                     type="submit"
-                                    className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+                                    whileHover="hover"
+                                    variants={buttonHover}
+                                    className="w-full bg-blue-600 text-white p-4 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 text-sm sm:text-base"
                                 >
                                     {editAnnouncementId ? 'Update Announcement' : 'Post Announcement'}
-                                </button>
+                                </motion.button>
                                 {editAnnouncementId && (
-                                    <button
+                                    <motion.button
                                         type="button"
                                         onClick={() => {
                                             setEditAnnouncementId(null);
                                             setAnnouncementForm('');
                                         }}
-                                        className="w-full bg-gray-500 text-white p-2 rounded mt-2 hover:bg-gray-600"
+                                        whileHover="hover"
+                                        variants={buttonHover}
+                                        className="w-full bg-gray-500 text-white p-4 rounded-lg mt-2 hover:bg-gray-600 transition-all duration-300 text-sm sm:text-base font-semibold"
                                     >
                                         Cancel
-                                    </button>
+                                    </motion.button>
                                 )}
                             </form>
-                        </div>
+                        </motion.div>
 
-                        <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
-                            <h2 className="text-2xl font-bold mb-4">Your Announcements</h2>
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={fadeIn}
+                            className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl"
+                        >
+                            <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Your Announcements</h2>
                             {announcements.length > 0 ? (
                                 <ul className="space-y-4">
                                     {announcements.map((announcement) => (
-                                        <li key={announcement._id} className="border-b pb-4">
-                                            <p className="text-gray-700">{announcement.message}</p>
-                                            <p className="text-gray-500 text-sm">
-                                                {new Date(announcement.timestamp).toLocaleString()}
+                                        <motion.li
+                                            key={announcement._id}
+                                            className="border border-gray-200 p-4 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                                            initial="hidden"
+                                            whileInView="visible"
+                                            viewport={{ once: true }}
+                                            variants={zoomIn}
+                                        >
+                                            <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                                <strong>Message:</strong> {announcement.message}
                                             </p>
-                                            <div className="mt-2">
-                                                <button
+                                            <p className="text-gray-600 text-sm sm:text-base">
+                                                <strong>Posted:</strong> {new Date(announcement.timestamp).toLocaleString()}
+                                            </p>
+                                            <div className="mt-3 flex space-x-2">
+                                                <motion.button
                                                     onClick={() => handleEditAnnouncement(announcement)}
-                                                    className="bg-yellow-500 text-white px-4 py-2 rounded mr-2 hover:bg-yellow-600"
+                                                    whileHover="hover"
+                                                    variants={buttonHover}
+                                                    className="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300 text-sm sm:text-base"
                                                 >
                                                     Edit
-                                                </button>
-                                                <button
+                                                </motion.button>
+                                                <motion.button
                                                     onClick={() => handleDeleteAnnouncement(announcement._id)}
-                                                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                                    whileHover="hover"
+                                                    variants={buttonHover}
+                                                    className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all duration-300 text-sm sm:text-base"
                                                 >
                                                     Delete
-                                                </button>
+                                                </motion.button>
                                             </div>
-                                        </li>
+                                        </motion.li>
                                     ))}
                                 </ul>
                             ) : (
-                                <p className="text-gray-700 text-center">No announcements posted yet</p>
+                                <p className="text-gray-700 text-center text-sm sm:text-base">No announcements posted yet</p>
                             )}
-                        </div>
+                        </motion.div>
                     </div>
                 )}
 
                 {/* Join Requests Section (Only for Gym or Trainer in a Gym) */}
                 {(user.role === 'gym' || isTrainerInGym) && (
-                    <div className="bg-white p-6 rounded-lg shadow-lg">
-                        <h2 className="text-2xl font-bold mb-4">{user.role === 'gym' ? 'Join Requests' : 'Member Join Requests'}</h2>
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeIn}
+                        className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl"
+                    >
+                        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">
+                            {user.role === 'gym' ? 'Join Requests' : 'Member Join Requests'}
+                        </h2>
                         {requests.length > 0 ? (
                             <ul className="space-y-4">
                                 {requests.map((request) => (
-                                    <li key={request._id} className="border-b pb-4">
-                                        <p className="text-gray-700">
+                                    <motion.li
+                                        key={request._id}
+                                        className="border border-gray-200 p-4 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                                        initial="hidden"
+                                        whileInView="visible"
+                                        viewport={{ once: true }}
+                                        variants={zoomIn}
+                                    >
+                                        <p className="text-gray-800 font-medium text-sm sm:text-base">
                                             <strong>{request.userModel}:</strong> {request.user.name} ({request.user.email})
                                         </p>
                                         {request.userModel === 'Member' && (
-                                            <p className="text-gray-700">
+                                            <p className="text-gray-600 text-sm sm:text-base">
                                                 <strong>Membership Duration:</strong> {request.membershipDuration}
                                             </p>
                                         )}
-                                        <p className="text-gray-700">
+                                        <p className="text-gray-600 text-sm sm:text-base">
                                             <strong>Requested on:</strong> {new Date(request.createdAt).toLocaleDateString()}
                                         </p>
-                                        <div className="mt-2">
-                                            <button
+                                        <div className="mt-3 flex space-x-2">
+                                            <motion.button
                                                 onClick={() => handleAccept(request._id)}
-                                                className="bg-green-600 text-white px-4 py-2 rounded mr-2 hover:bg-green-700"
+                                                whileHover="hover"
+                                                variants={buttonHover}
+                                                className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-all duration-300 text-sm sm:text-base"
                                             >
                                                 Accept
-                                            </button>
-                                            <button
+                                            </motion.button>
+                                            <motion.button
                                                 onClick={() => handleDeny(request._id)}
-                                                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                                whileHover="hover"
+                                                variants={buttonHover}
+                                                className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all duration-300 text-sm sm:text-base"
                                             >
                                                 Deny
-                                            </button>
+                                            </motion.button>
                                         </div>
-                                    </li>
+                                    </motion.li>
                                 ))}
                             </ul>
                         ) : (
-                            <p className="text-gray-700 text-center">No pending join requests</p>
+                            <p className="text-gray-700 text-center text-sm sm:text-base">No pending join requests</p>
                         )}
-                    </div>
+                    </motion.div>
                 )}
             </div>
         </div>

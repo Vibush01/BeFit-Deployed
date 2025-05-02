@@ -2,6 +2,8 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { motion } from 'framer-motion';
+import { toast } from 'react-toastify';
 
 const GymProfile = () => {
     const { id } = useParams();
@@ -18,7 +20,8 @@ const GymProfile = () => {
                 const res = await axios.get(`http://localhost:5000/api/gym/${id}`);
                 setGym(res.data);
             } catch (err) {
-                setError('Failed to fetch gym details'+err);
+                setError('Failed to fetch gym details');
+                toast.error('Failed to fetch gym details', { position: 'top-right' });
             }
         };
 
@@ -33,103 +36,222 @@ const GymProfile = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setSuccess('Join request sent successfully');
+            toast.success('Join request sent successfully', { position: 'top-right' });
             setTimeout(() => navigate('/gyms'), 2000);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to send join request');
+            toast.error(err.response?.data?.message || 'Failed to send join request', { position: 'top-right' });
         }
     };
 
+    // Animation Variants
+    const fadeIn = {
+        hidden: { opacity: 0, y: 30 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
+    const zoomIn = {
+        hidden: { opacity: 0, scale: 0.9 },
+        visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: 'easeOut' } },
+    };
+
+    const buttonHover = {
+        hover: { scale: 1.05, boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)', transition: { duration: 0.3 } },
+    };
+
     if (!gym) {
-        return <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-            <p>{error || 'Loading...'}</p>
-        </div>;
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4">
+                <motion.p
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="text-gray-700 text-lg sm:text-xl"
+                >
+                    {error || 'Loading...'}
+                </motion.p>
+            </div>
+        );
     }
 
     const canJoin = (user?.role === 'member' || user?.role === 'trainer') && !userDetails?.gym;
     const isMemberOrTrainer = (user?.role === 'member' || user?.role === 'trainer') && userDetails?.gym === id;
 
     return (
-        <div className="min-h-screen bg-gray-100 py-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
             <div className="container mx-auto">
-                <h1 className="text-3xl font-bold mb-6 text-center">{gym.gymName}</h1>
-                {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-                {success && <p className="text-green-500 mb-4 text-center">{success}</p>}
-                <div className="bg-white p-6 rounded-lg shadow-lg">
+                <motion.h1
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    className="text-3xl sm:text-4xl font-bold mb-8 text-center text-gray-900 tracking-tight"
+                >
+                    {gym.gymName}
+                </motion.h1>
+                {error && (
+                    <motion.p
+                        initial="hidden"
+                        animate="visible"
+                        variants={fadeIn}
+                        className="text-red-500 mb-6 text-center text-sm sm:text-base"
+                    >
+                        {error}
+                    </motion.p>
+                )}
+                {success && (
+                    <motion.p
+                        initial="hidden"
+                        animate="visible"
+                        variants={fadeIn}
+                        className="text-green-500 mb-6 text-center text-sm sm:text-base"
+                    >
+                        {success}
+                    </motion.p>
+                )}
+                <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeIn}
+                    className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl"
+                >
                     {isMemberOrTrainer && (
-                        <p className="text-green-600 mb-4 text-center">
+                        <motion.p
+                            initial="hidden"
+                            animate="visible"
+                            variants={fadeIn}
+                            className="text-green-600 mb-4 text-center text-sm sm:text-base font-semibold"
+                        >
                             You are already a {user.role === 'member' ? 'member' : 'trainer'} of this gym.
-                        </p>
+                        </motion.p>
                     )}
-                    <p className="text-gray-700 mb-2"><strong>Address:</strong> {gym.address}</p>
-                    <p className="text-gray-700 mb-2"><strong>Owner:</strong> {gym.ownerName} ({gym.ownerEmail})</p>
-                    
-                    <div className="mb-4">
-                        <h2 className="text-xl font-bold mb-2">Photos</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <p className="text-gray-800 font-medium text-sm sm:text-base mb-2">
+                        <strong>Address:</strong> {gym.address}
+                    </p>
+                    <p className="text-gray-800 font-medium text-sm sm:text-base mb-4">
+                        <strong>Owner:</strong> {gym.ownerName} ({gym.ownerEmail})
+                    </p>
+
+                    <div className="mb-6">
+                        <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">Photos</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             {gym.photos.length > 0 ? (
                                 gym.photos.map((photo, index) => (
-                                    <img key={index} src={photo} alt={`Gym ${index}`} className="w-full h-48 object-cover rounded" />
+                                    <motion.img
+                                        key={index}
+                                        src={photo}
+                                        alt={`Gym ${index}`}
+                                        className="w-full h-48 object-cover rounded-lg"
+                                        initial="hidden"
+                                        whileInView="visible"
+                                        viewport={{ once: true }}
+                                        variants={zoomIn}
+                                    />
                                 ))
                             ) : (
-                                <p>No photos available</p>
+                                <p className="text-gray-700 text-sm sm:text-base">No photos available</p>
                             )}
                         </div>
                     </div>
 
-                    <div className="mb-4">
-                        <h2 className="text-xl font-bold mb-2">Membership Plans</h2>
+                    <div className="mb-6">
+                        <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">Membership Plans</h2>
                         {gym.membershipPlans.length > 0 ? (
-                            <ul className="list-disc pl-5">
+                            <ul className="space-y-2">
                                 {gym.membershipPlans.map((plan, index) => (
-                                    <li key={index} className="text-gray-700">
-                                        {plan.duration}: ${plan.price}
-                                    </li>
+                                    <motion.li
+                                        key={index}
+                                        className="border border-gray-200 p-3 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                                        initial="hidden"
+                                        whileInView="visible"
+                                        viewport={{ once: true }}
+                                        variants={zoomIn}
+                                    >
+                                        <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                            <strong>Duration:</strong> {plan.duration}
+                                        </p>
+                                        <p className="text-gray-600 text-sm sm:text-base">
+                                            <strong>Price:</strong> ${plan.price}
+                                        </p>
+                                    </motion.li>
                                 ))}
                             </ul>
                         ) : (
-                            <p>No membership plans available</p>
+                            <p className="text-gray-700 text-sm sm:text-base">No membership plans available</p>
                         )}
                     </div>
 
-                    <div className="mb-4">
-                        <h2 className="text-xl font-bold mb-2">Members</h2>
+                    <div className="mb-6">
+                        <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">Members</h2>
                         {gym.members.length > 0 ? (
-                            <ul className="list-disc pl-5">
+                            <ul className="space-y-2">
                                 {gym.members.map((member) => (
-                                    <li key={member._id} className="text-gray-700">
-                                        {member.name} ({member.email})
-                                    </li>
+                                    <motion.li
+                                        key={member._id}
+                                        className="border border-gray-200 p-3 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                                        initial="hidden"
+                                        whileInView="visible"
+                                        viewport={{ once: true }}
+                                        variants={zoomIn}
+                                    >
+                                        <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                            <strong>Name:</strong> {member.name}
+                                        </p>
+                                        <p className="text-gray-600 text-sm sm:text-base">
+                                            <strong>Email:</strong> {member.email}
+                                        </p>
+                                    </motion.li>
                                 ))}
                             </ul>
                         ) : (
-                            <p>No members yet</p>
+                            <p className="text-gray-700 text-sm sm:text-base">No members yet</p>
                         )}
                     </div>
 
-                    <div className="mb-4">
-                        <h2 className="text-xl font-bold mb-2">Trainers</h2>
+                    <div className="mb-6">
+                        <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">Trainers</h2>
                         {gym.trainers.length > 0 ? (
-                            <ul className="list-disc pl-5">
+                            <ul className="space-y-2">
                                 {gym.trainers.map((trainer) => (
-                                    <li key={trainer._id} className="text-gray-700">
-                                        {trainer.name} ({trainer.email})
-                                    </li>
+                                    <motion.li
+                                        key={trainer._id}
+                                        className="border border-gray-200 p-3 rounded-lg hover:bg-gray-50 transition-all duration-300"
+                                        initial="hidden"
+                                        whileInView="visible"
+                                        viewport={{ once: true }}
+                                        variants={zoomIn}
+                                    >
+                                        <p className="text-gray-800 font-medium text-sm sm:text-base">
+                                            <strong>Name:</strong> {trainer.name}
+                                        </p>
+                                        <p className="text-gray-600 text-sm sm:text-base">
+                                            <strong>Email:</strong> {trainer.email}
+                                        </p>
+                                    </motion.li>
                                 ))}
                             </ul>
                         ) : (
-                            <p>No trainers yet</p>
+                            <p className="text-gray-700 text-sm sm:text-base">No trainers yet</p>
                         )}
                     </div>
 
                     {canJoin && (
-                        <div className="mt-6">
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={fadeIn}
+                            className="mt-6"
+                        >
                             {user.role === 'member' && (
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 mb-2">Membership Duration</label>
+                                <motion.div variants={fadeIn} className="mb-4">
+                                    <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
+                                        Membership Duration
+                                    </label>
                                     <select
                                         value={membershipDuration}
                                         onChange={(e) => setMembershipDuration(e.target.value)}
-                                        className="w-full p-2 border rounded"
+                                        className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                                     >
                                         <option value="1 week">1 Week</option>
                                         <option value="1 month">1 Month</option>
@@ -137,17 +259,20 @@ const GymProfile = () => {
                                         <option value="6 months">6 Months</option>
                                         <option value="1 year">1 Year</option>
                                     </select>
-                                </div>
+                                </motion.div>
                             )}
-                            <button
+                            <motion.button
                                 onClick={handleJoinRequest}
-                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                whileHover="hover"
+                                variants={buttonHover}
+                                className="w-full bg-blue-600 text-white p-4 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 text-sm sm:text-base"
+                                aria-label="Send Join Request"
                             >
                                 Send Join Request
-                            </button>
-                        </div>
+                            </motion.button>
+                        </motion.div>
                     )}
-                </div>
+                </motion.div>
             </div>
         </div>
     );
