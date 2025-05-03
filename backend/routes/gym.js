@@ -241,6 +241,213 @@ router.get('/members', authMiddleware, async (req, res) => {
             return res.status(401).json({ message: 'User authentication failed' });
         }
 
+        // Validate gym ID
+        if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
+            console.error(`Invalid gym ID in req.user.id: ${req.user.id}`);
+            return res.status(400).json({ message: 'Invalid gym ID' });
+        }
+
+        let gym;
+        if (req.user.role === 'gym') {
+            console.log(`Fetching gym with ID ${req.user.id} for gym role`);
+            gym = await Gym.findById(req.user.id);
+            if (!gym) {
+                console.error(`Gym not found for ID ${req.user.id}`);
+                return res.status(404).json({ message: 'Gym not found' });
+            }
+            gym = await Gym.findById(req.user.id).populate({
+                path: 'members',
+                select: 'name email membership',
+                match: { _id: { $ne: null } }, // Ensure member exists
+            });
+        } else {
+            console.log(`Fetching trainer with ID ${req.user.id} for trainer role`);
+            const trainer = await Trainer.findById(req.user.id);
+            if (!trainer) {
+                console.error(`Trainer not found for ID ${req.user.id}`);
+                return res.status(404).json({ message: 'Trainer not found' });
+            }
+            if (!trainer.gym) {
+                console.error(`Trainer with ID ${req.user.id} is not associated with a gym`);
+                return res.status(404).json({ message: 'Trainer not associated with a gym' });
+            }
+            console.log(`Fetching gym with ID ${trainer.gym} for trainer`);
+            gym = await Gym.findById(trainer.gym).populate({
+                path: 'members',
+                select: 'name email membership',
+                match: { _id: { $ne: null } }, // Ensure member exists
+            });
+        }
+
+        if (!gym) {
+            console.error('Gym not found after population');
+            return res.status(404).json({ message: 'Gym not found' });
+        }
+
+        // Log the gym document to debug
+        console.log('Gym document:', gym);
+
+        // Handle case where members array might be null or undefined
+        const members = gym.members || [];
+        console.log('Members after population:', members);
+
+        res.json(members);
+    } catch (error) {
+        console.error('Error in GET /members:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+// Get trainers for membership management (Gym only)
+router.get('/trainers', authMiddleware, async (req, res) => {
+    if (req.user.role !== 'gym') {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+
+    try {
+        // Validate req.user
+        if (!req.user || !req.user.id) {
+            console.error('Invalid user in req:', req.user);
+            return res.status(401).json({ message: 'User authentication failed' });
+        }
+
+        // Validate gym ID
+        if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
+            console.error(`Invalid gym ID in req.user.id: ${req.user.id}`);
+            return res.status(400).json({ message: 'Invalid gym ID' });
+        }
+
+        console.log(`Fetching gym with ID ${req.user.id} for gym role`);
+        const gym = await Gym.findById(req.user.id).populate({
+            path: 'trainers',
+            select: 'name email',
+            match: { _id: { $ne: null } }, // Ensure trainer exists
+        });
+
+        if (!gym) {
+            console.error(`Gym not found for ID ${req.user.id}`);
+            return res.status(404).json({ message: 'Gym not found' });
+        }
+
+        // Log the gym document to debug
+        console.log('Gym document:', gym);
+
+        // Handle case where trainers array might be null or undefined
+        const trainers = gym.trainers || [];
+        console.log('Trainers after population:', trainers);
+
+        res.json(trainers);
+    } catch (error) {
+        console.error('Error in GET /trainers:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+// Remove a member from the gym (Gym only)
+router.delete('/members/:memberId', authMiddleware, async (req, res) => {
+    if (req.user.role !== 'gym') {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+
+    try {
+        const gym = await Gym.findById(req.user.id);
+        if (!gym) {
+            return res.status(404).json({ message: 'Gym not found' });
+        }
+
+        const member = await Member.findById(req.params.memberId);
+        if (!member || member.gym.toString() !== gym._id.toString()) {
+            return res.status(404).json({ message: 'Member not found or not in this gym' });
+        }
+
+        // Remove member from gym
+        gym.members = gym.members.filter((id) => id.toString() !== req.params.memberId);
+        await gym.save();
+
+        // Clear gym and membership from member
+        member.gym = undefined;
+        member.membership = undefined;
+        await member.save();
+
+        // Remove any pending membership requests for this member
+        await MembershipRequest.deleteMany({
+            member: req.params.memberId,
+            gym: gym._id,
+            status: 'pending',
+        });
+
+        // Log the member removal event
+        const eventLog = new EventLog({
+            event: 'Member Removed',
+            page: '/membership-management',
+            user: req.user.id,
+            userModel: 'Gym',
+            details: `Gym removed member ${member.name}`,
+        });
+        await eventLog.save();
+
+        res.json({ message: 'Member removed successfully' });
+    } catch (error) {
+        console.error('Error in DELETE /members/:memberId:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+// // Remove a trainer from the gym (Gym only)
+// router.delete('/trainers/:trainerId', authMiddleware, async (req, res) => {
+//     if (req.user.role !== 'gym') {
+//         return res.status(403).json({ message: 'Access denied' });
+//     }
+
+//     try {
+//         const gym = await Gym.findById(req.user.id);
+//         if (!gym) {
+//             return res.status(404).json({ message: 'Gym not found' });
+//         }
+
+//         const trainer = await Trainer.findById(req.params.trainerId);
+//         if (!trainer || trainer.gym.toString() !== gym._id.toString()) {
+//             return res.status(404).json({ message: 'Trainer not found or not in this gym' });
+//         }
+
+//         // Remove trainer from gym
+//         gym.trainers = gym.trainers.filter((id) => id.toString() !== req.params.trainerId);
+//         await gym.save();
+
+//         // Clear gym from trainer
+//         trainer.gym = undefined;
+//         await trainer.save();
+
+//         // Log the trainer removal event
+//         const eventLog = new EventLog({
+//             event: 'Trainer Removed',
+//             page: '/membership-management',
+//             user: req.user.id,
+//             userModel: 'Gym',
+//             details: `Gym removed trainer ${trainer.name}`,
+//         });
+//         await eventLog.save();
+
+//         res.json({ message: 'Trainer removed successfully' });
+//     } catch (error) {
+//         console.error('Error in DELETE /trainers/:trainerId:', error);
+//         res.status(500).json({ message: 'Server error', error: error.message });
+//     }
+// });
+
+// Get members for membership management (Gym and Trainers)
+router.get('/members', authMiddleware, async (req, res) => {
+    if (req.user.role !== 'gym' && req.user.role !== 'trainer') {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+
+    try {
+        // Validate req.user
+        if (!req.user || !req.user.id) {
+            console.error('Invalid user in req:', req.user);
+            return res.status(401).json({ message: 'User authentication failed' });
+        }
+
         let gym;
         if (req.user.role === 'gym') {
             console.log(`Fetching gym with ID ${req.user.id} for gym role`);

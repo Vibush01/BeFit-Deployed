@@ -70,11 +70,11 @@ const Navbar = () => {
                                             Dashboard
                                         </Link>
                                     </motion.div>
-                                    <motion.div whileHover="hover" variants={linkHover}>
+                                    {/* <motion.div whileHover="hover" variants={linkHover}>
                                         <Link to="/membership-management" className="text-white hover:text-gray-200 text-sm sm:text-base font-medium transition-colors duration-300">
                                             Membership Management
                                         </Link>
-                                    </motion.div>
+                                    </motion.div> */}
                                 </>
                             )}
                             {(user.role === 'member' || user.role === 'trainer') && (
@@ -147,6 +147,11 @@ const Navbar = () => {
                             {user.role === 'trainer' && userDetails?.gym && (
                                 <>
                                     <motion.div whileHover="hover" variants={linkHover}>
+                                        <Link to="/membership-management" className="text-white hover:text-gray-200 text-sm sm:text-base font-medium transition-colors duration-300">
+                                            Membership Management
+                                        </Link>
+                                    </motion.div>
+                                    <motion.div whileHover="hover" variants={linkHover}>
                                         <Link to="/workout-plans" className="text-white hover:text-gray-200 text-sm sm:text-base font-medium transition-colors duration-300">
                                             Workout Plans
                                         </Link>
@@ -169,11 +174,18 @@ const Navbar = () => {
                                 </>
                             )}
                             {user.role === 'gym' && (
+                                <>
+                                <motion.div whileHover="hover" variants={linkHover}>
+                                <Link to="/membership-management" className="text-white hover:text-gray-200 text-sm sm:text-base font-medium transition-colors duration-300">
+                                    Membership Management
+                                </Link>
+                                </motion.div>
                                 <motion.div whileHover="hover" variants={linkHover}>
                                     <Link to="/update-gym" className="text-white hover:text-gray-200 text-sm sm:text-base font-medium transition-colors duration-300">
                                         Update Gym
                                     </Link>
                                 </motion.div>
+                                </>
                             )}
                             {user.role === 'admin' && (
                                 <motion.div whileHover="hover" variants={linkHover}>
