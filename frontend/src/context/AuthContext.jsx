@@ -1,6 +1,8 @@
 import { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -11,16 +13,19 @@ export const AuthProvider = ({ children }) => {
     // Function to fetch user profile
     const fetchUserProfile = async (token) => {
         try {
-            const res = await axios.get('http://localhost:5000/api/auth/profile', {
+            const res = await axios.get(`${API_URL}/auth/profile`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setUserDetails(res.data);
         } catch (err) {
             console.error('Failed to fetch user profile:', err);
-            // If token is invalid, clear it
-            localStorage.removeItem('token');
-            setUser(null);
-            setUserDetails(null);
+            if (err.response?.status === 401) {
+                // Token is invalid or expired
+                localStorage.removeItem('token');
+                setUser(null);
+                setUserDetails(null);
+                window.location.href = '/login'; // Redirect to login page
+            }
         }
     };
 
@@ -29,7 +34,9 @@ export const AuthProvider = ({ children }) => {
         const token = localStorage.getItem('token');
         if (token) {
             // Parse the token to get user data
+            
             try {
+                
                 const userData = JSON.parse(atob(token.split('.')[1]));
                 setUser({ id: userData.id, role: userData.role });
                 // Fetch user details

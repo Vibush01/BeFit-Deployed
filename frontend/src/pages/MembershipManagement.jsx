@@ -2,7 +2,8 @@ import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const MembershipManagement = () => {
     const { user, userDetails } = useContext(AuthContext);
     const [members, setMembers] = useState([]);
@@ -15,7 +16,7 @@ const MembershipManagement = () => {
         const fetchMembers = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/gym/members', {
+                const res = await axios.get(`${API_URL}/gym/members`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setMembers(res.data);
@@ -27,7 +28,7 @@ const MembershipManagement = () => {
         const fetchTrainers = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/gym/trainers', {
+                const res = await axios.get(`${API_URL}/gym/trainers`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setTrainers(res.data);
@@ -39,7 +40,7 @@ const MembershipManagement = () => {
         const fetchMembershipRequests = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/gym/membership-requests', {
+                const res = await axios.get(`${API_URL}/gym/membership-requests`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setMembershipRequests(res.data);
@@ -65,7 +66,7 @@ const MembershipManagement = () => {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:5000/api/gym/members/${selectedMember}/membership`, { duration }, {
+            await axios.put(`${API_URL}/gym/members/${selectedMember}/membership`, { duration }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setMembers(members.map((member) =>
@@ -84,7 +85,7 @@ const MembershipManagement = () => {
     const handleRemoveMember = async (memberId) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/gym/members/${memberId}`, {
+            await axios.delete(`${API_URL}/gym/members/${memberId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setMembers(members.filter((member) => member._id !== memberId));
@@ -98,7 +99,7 @@ const MembershipManagement = () => {
     const handleRemoveTrainer = async (trainerId) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/gym/trainers/${trainerId}`, {
+            await axios.delete(`${API_URL}/gym/trainers/${trainerId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setTrainers(trainers.filter((trainer) => trainer._id !== trainerId));
@@ -111,7 +112,7 @@ const MembershipManagement = () => {
     const handleRequestAction = async (requestId, action) => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post(`http://localhost:5000/api/gym/membership-requests/${requestId}/action`, { action }, {
+            const res = await axios.post(`${API_URL}/gym/membership-requests/${requestId}/action`, { action }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setMembershipRequests(membershipRequests.map((req) =>

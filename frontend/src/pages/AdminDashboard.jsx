@@ -5,7 +5,7 @@ import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
-
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
@@ -25,7 +25,7 @@ const AdminDashboard = () => {
         const fetchGyms = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/admin/gyms', {
+                const res = await axios.get(`${API_URL}/admin/gyms`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setGyms(res.data);
@@ -37,7 +37,7 @@ const AdminDashboard = () => {
         const fetchContactMessages = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/contact/messages', {
+                const res = await axios.get(`${API_URL}/contact/messages`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setContactMessages(res.data);
@@ -49,7 +49,7 @@ const AdminDashboard = () => {
         const fetchAnalytics = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/admin/analytics', {
+                const res = await axios.get(`${API_URL}/admin/analytics`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setAnalytics(res.data);
@@ -73,7 +73,7 @@ const AdminDashboard = () => {
     const handleDeleteGym = async (gymId) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/admin/gyms/${gymId}`, {
+            await axios.delete(`${API_URL}/admin/gyms/${gymId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setGyms(gyms.filter((gym) => gym._id !== gymId));
@@ -87,7 +87,7 @@ const AdminDashboard = () => {
     const handleDeleteMessage = async (messageId) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/contact/messages/${messageId}`, {
+            await axios.delete(`${API_URL}/contact/messages/${messageId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setContactMessages(contactMessages.filter((message) => message._id !== messageId));

@@ -5,6 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const AdminSignup = () => {
     const [formData, setFormData] = useState({
         name: '',
@@ -23,7 +24,7 @@ const AdminSignup = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/register', {
+            const res = await axios.post(`${API_URL}/auth/register`, {
                 ...formData,
                 role: 'admin',
             });

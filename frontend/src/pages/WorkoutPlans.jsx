@@ -3,7 +3,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const WorkoutPlans = () => {
     const { user } = useContext(AuthContext);
     const [plans, setPlans] = useState([]);
@@ -32,12 +33,12 @@ const WorkoutPlans = () => {
         const fetchPlans = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const workoutRes = await axios.get('http://localhost:5000/api/trainer/workout-plans', {
+                const workoutRes = await axios.get(`${API_URL}/trainer/workout-plans`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setPlans(workoutRes.data);
 
-                const dietRes = await axios.get('http://localhost:5000/api/trainer/diet-plans', {
+                const dietRes = await axios.get(`${API_URL}/trainer/diet-plans`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setDietPlans(dietRes.data);
@@ -50,7 +51,7 @@ const WorkoutPlans = () => {
         const fetchRequests = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/trainer/plan-requests', {
+                const res = await axios.get(`${API_URL}/trainer/plan-requests`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setRequests(res.data);
@@ -63,11 +64,11 @@ const WorkoutPlans = () => {
         const fetchMembers = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const trainerRes = await axios.get('http://localhost:5000/api/auth/profile', {
+                const trainerRes = await axios.get(`${API_URL}/auth/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const gymId = trainerRes.data.gym;
-                const gymRes = await axios.get(`http://localhost:5000/api/gym/${gymId}`);
+                const gymRes = await axios.get(`${API_URL}/gym/${gymId}`);
                 setMembers(gymRes.data.members);
             } catch (err) {
                 setError('Failed to fetch members');
@@ -144,7 +145,7 @@ const WorkoutPlans = () => {
             };
 
             if (editWorkoutId) {
-                const res = await axios.put(`http://localhost:5000/api/trainer/workout-plans/${editWorkoutId}`, data, {
+                const res = await axios.put(`${API_URL}/trainer/workout-plans/${editWorkoutId}`, data, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setPlans(plans.map((plan) => (plan._id === editWorkoutId ? res.data.workoutPlan : plan)));
@@ -152,7 +153,7 @@ const WorkoutPlans = () => {
                 toast.success('Workout plan updated', { position: 'top-right' });
                 setEditWorkoutId(null);
             } else {
-                const res = await axios.post('http://localhost:5000/api/trainer/workout-plans', data, {
+                const res = await axios.post(`${API_URL}/trainer/workout-plans`, data, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setPlans([res.data.workoutPlan, ...plans]);
@@ -184,7 +185,7 @@ const WorkoutPlans = () => {
             };
 
             if (editDietId) {
-                const res = await axios.put(`http://localhost:5000/api/trainer/diet-plans/${editDietId}`, data, {
+                const res = await axios.put(`${API_URL}/trainer/diet-plans/${editDietId}`, data, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setDietPlans(dietPlans.map((plan) => (plan._id === editDietId ? res.data.dietPlan : plan)));
@@ -192,7 +193,7 @@ const WorkoutPlans = () => {
                 toast.success('Diet plan updated', { position: 'top-right' });
                 setEditDietId(null);
             } else {
-                const res = await axios.post('http://localhost:5000/api/trainer/diet-plans', data, {
+                const res = await axios.post(`${API_URL}/trainer/diet-plans`, data, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setDietPlans([res.data.dietPlan, ...dietPlans]);
@@ -237,7 +238,7 @@ const WorkoutPlans = () => {
     const handleWorkoutDelete = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/trainer/workout-plans/${id}`, {
+            await axios.delete(`${API_URL}/trainer/workout-plans/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setPlans(plans.filter((plan) => plan._id !== id));
@@ -252,7 +253,7 @@ const WorkoutPlans = () => {
     const handleDietDelete = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/trainer/diet-plans/${id}`, {
+            await axios.delete(`${API_URL}/trainer/diet-plans/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setDietPlans(dietPlans.filter((plan) => plan._id !== id));
@@ -267,7 +268,7 @@ const WorkoutPlans = () => {
     const handleRequestAction = async (requestId, action) => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post(`http://localhost:5000/api/trainer/plan-requests/${requestId}/action`, { action }, {
+            const res = await axios.post(`${API_URL}/trainer/plan-requests/${requestId}/action`, { action }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setRequests(requests.map((req) => (req._id === requestId ? res.data.planRequest : req)));

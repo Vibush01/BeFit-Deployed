@@ -18,7 +18,6 @@ import ProgressTracker from './pages/ProgressTracker';
 import Chat from './pages/Chat';
 import Announcements from './pages/Announcements';
 import WorkoutPlans from './pages/WorkoutPlans';
-// import Scheduling from './pages/Scheduling';
 import MemberDashboard from './pages/MemberDashboard';
 import RequestPlan from './pages/RequestPlan';
 import ManageSchedule from './pages/ManageSchedule';
@@ -77,11 +76,6 @@ function App() {
                             <WorkoutPlans />
                         </ProtectedRoute>
                     } />
-                    {/* <Route path="/scheduling" element={
-                        <ProtectedRoute>
-                            <Scheduling />
-                        </ProtectedRoute>
-                    } /> */}
                     <Route path="/member-dashboard" element={
                         <ProtectedRoute>
                             <MemberDashboard />

@@ -3,7 +3,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const BookSession = () => {
     const { user } = useContext(AuthContext);
     const [availableSchedules, setAvailableSchedules] = useState([]);
@@ -15,7 +16,7 @@ const BookSession = () => {
         const fetchAvailableSchedules = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/trainer/member/available-schedules', {
+                const res = await axios.get(`${API_URL}/trainer/member/available-schedules`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setAvailableSchedules(res.data);
@@ -28,7 +29,7 @@ const BookSession = () => {
         const fetchBookedSessions = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/trainer/member/booked-sessions', {
+                const res = await axios.get(`${API_URL}/trainer/member/booked-sessions`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setBookedSessions(res.data);
@@ -47,7 +48,7 @@ const BookSession = () => {
     const handleBookSession = async (scheduleId) => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post(`http://localhost:5000/api/trainer/book-session/${scheduleId}`, {}, {
+            const res = await axios.post(`${API_URL}/trainer/book-session/${scheduleId}`, {}, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setAvailableSchedules(availableSchedules.filter((schedule) => schedule._id !== scheduleId));

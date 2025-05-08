@@ -2,7 +2,8 @@ import { useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const Home = () => {
     const [formData, setFormData] = useState({
         name: '',
@@ -19,7 +20,7 @@ const Home = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('http://localhost:5000/api/contact/messages', formData);
+            const res = await axios.post(`${API_URL}/contact/messages`, formData);
             toast.success(res.data.message, { position: "top-right" });
             setFormData({
                 name: '',

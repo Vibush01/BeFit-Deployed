@@ -3,7 +3,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const MembershipUpdate = () => {
     const { user, userDetails } = useContext(AuthContext);
     const [requests, setRequests] = useState([]);
@@ -13,7 +14,7 @@ const MembershipUpdate = () => {
         const fetchRequests = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/member/membership-requests', {
+                const res = await axios.get(`${API_URL}/member/membership-requests`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setRequests(res.data);
@@ -35,7 +36,7 @@ const MembershipUpdate = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:5000/api/member/membership-request', {
+            const res = await axios.post(`${API_URL}/member/membership-request`, {
                 requestedDuration,
             }, {
                 headers: { Authorization: `Bearer ${token}` },

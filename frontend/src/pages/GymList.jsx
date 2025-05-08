@@ -4,7 +4,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const GymList = () => {
     const { user } = useContext(AuthContext);
     const [gyms, setGyms] = useState([]);
@@ -13,7 +14,7 @@ const GymList = () => {
     useEffect(() => {
         const fetchGyms = async () => {
             try {
-                const res = await axios.get('http://localhost:5000/api/gym');
+                const res = await axios.get(`${API_URL}/gym`);
                 setGyms(res.data);
             } catch (err) {
                 setError('Failed to fetch gyms');

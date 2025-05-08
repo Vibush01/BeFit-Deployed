@@ -5,7 +5,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const Chat = () => {
     const { user, userDetails } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -30,7 +31,7 @@ const Chat = () => {
         }
 
         // Initialize Socket.IO
-        socketRef.current = io('http://localhost:5000');
+        socketRef.current = io(`${API_URL}`);
         socketRef.current.on('connect', () => {
             socketRef.current.emit('joinGym', gymId);
         });
@@ -42,7 +43,7 @@ const Chat = () => {
         // Fetch gym members and trainers based on role restrictions
         const fetchReceivers = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/gym/${gymId}`);
+                const res = await axios.get(`${API_URL}/gym/${gymId}`);
                 const gym = res.data;
                 const receiversList = [];
 
@@ -81,7 +82,7 @@ const Chat = () => {
     const fetchMessages = async (receiverId) => {
         try {
             const gymId = user.role === 'gym' ? user.id : userDetails.gym;
-            const res = await axios.get(`http://localhost:5000/api/chat/messages/${gymId}/${receiverId}`, {
+            const res = await axios.get(`${API_URL}/chat/messages/${gymId}/${receiverId}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
             });
             setMessages(res.data);

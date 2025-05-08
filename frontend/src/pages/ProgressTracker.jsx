@@ -3,7 +3,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const ProgressTracker = () => {
     const { user } = useContext(AuthContext);
     const [logs, setLogs] = useState([]);
@@ -22,7 +23,7 @@ const ProgressTracker = () => {
         const fetchLogs = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/member/progress', {
+                const res = await axios.get(`${API_URL}/member/progress`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setLogs(res.data);
@@ -67,7 +68,7 @@ const ProgressTracker = () => {
 
             let res;
             if (editId) {
-                res = await axios.put(`http://localhost:5000/api/member/progress/${editId}`, formDataToSend, {
+                res = await axios.put(`${API_URL}/member/progress/${editId}`, formDataToSend, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data',
@@ -78,7 +79,7 @@ const ProgressTracker = () => {
                 toast.success('Progress log updated', { position: 'top-right' });
                 setEditId(null);
             } else {
-                res = await axios.post('http://localhost:5000/api/member/progress', formDataToSend, {
+                res = await axios.post(`${API_URL}/member/progress`, formDataToSend, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data',
@@ -110,7 +111,7 @@ const ProgressTracker = () => {
     const handleDelete = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/member/progress/${id}`, {
+            await axios.delete(`${API_URL}/member/progress/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setLogs(logs.filter((log) => log._id !== id));

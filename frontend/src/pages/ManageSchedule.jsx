@@ -3,7 +3,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const ManageSchedule = () => {
     const { user } = useContext(AuthContext);
     const [schedules, setSchedules] = useState([]);
@@ -18,7 +19,7 @@ const ManageSchedule = () => {
         const fetchSchedules = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/trainer/trainer-schedules', {
+                const res = await axios.get(`${API_URL}/trainer/trainer-schedules`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setSchedules(res.data);
@@ -46,7 +47,7 @@ const ManageSchedule = () => {
                 endTime: formData.endTime,
             };
 
-            const res = await axios.post('http://localhost:5000/api/trainer/trainer-schedules', data, {
+            const res = await axios.post(`${API_URL}/trainer/trainer-schedules`, data, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setSchedules([res.data.trainerSchedule, ...schedules]);
@@ -65,7 +66,7 @@ const ManageSchedule = () => {
     const handleDelete = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/trainer/trainer-schedules/${id}`, {
+            await axios.delete(`${API_URL}/trainer/trainer-schedules/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setSchedules(schedules.filter((schedule) => schedule._id !== id));

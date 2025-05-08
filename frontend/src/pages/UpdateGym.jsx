@@ -3,7 +3,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const UpdateGym = () => {
     const { user } = useContext(AuthContext);
     const [formData, setFormData] = useState({
@@ -24,7 +25,7 @@ const UpdateGym = () => {
         const fetchGym = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/auth/profile', {
+                const res = await axios.get(`${API_URL}/auth/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setFormData({
@@ -38,8 +39,9 @@ const UpdateGym = () => {
                 });
                 setPreviewImages(res.data.photos || []);
             } catch (err) {
-                setError('Failed to fetch gym details');
-                toast.error('Failed to fetch gym details'+err, { position: 'top-right' });
+                console.error('Error fetching gym details:', err);
+                setError(err.response?.data?.message || 'Failed to fetch gym details');
+                toast.error(err.response?.data?.message || 'Failed to fetch gym details', { position: 'top-right' });
             }
         };
 
@@ -61,9 +63,21 @@ const UpdateGym = () => {
             toast.error('Please fill in both duration and price for the membership plan', { position: 'top-right' });
             return;
         }
+    
+        const price = parseFloat(newMembershipPlan.price);
+        if (isNaN(price) || price <= 0) {
+            toast.error('Price must be a valid positive number', { position: 'top-right' });
+            return;
+        }
+    
+        const plan = {
+            duration: newMembershipPlan.duration,
+            price: price.toString(), // Convert back to string for consistency
+        };
+    
         setFormData({
             ...formData,
-            membershipPlans: [...formData.membershipPlans, newMembershipPlan],
+            membershipPlans: [...formData.membershipPlans, plan],
         });
         setNewMembershipPlan({ duration: '', price: '' });
     };
@@ -77,19 +91,19 @@ const UpdateGym = () => {
 
     const handlePhotoChange = (e) => {
         const files = Array.from(e.target.files);
-        setFormData({ ...formData, photos: files });
+        setFormData({ ...formData, photos: [...formData.photos, ...files] }); // Append new files
         setPreviewImages([...previewImages, ...files.map((file) => URL.createObjectURL(file))]);
     };
-
+    
     const handleDeletePhoto = (photoUrl) => {
         setFormData({
             ...formData,
             deletePhotos: [...formData.deletePhotos, photoUrl],
-            photos: formData.photos.filter((_, index) => previewImages[index] !== photoUrl),
+            photos: formData.photos.filter((photo) => !(photo instanceof File) || URL.createObjectURL(photo) !== photoUrl), // Remove only new files
         });
         setPreviewImages(previewImages.filter((url) => url !== photoUrl));
     };
-
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -99,21 +113,25 @@ const UpdateGym = () => {
             if (formData.address) data.append('address', formData.address);
             if (formData.ownerName) data.append('ownerName', formData.ownerName);
             if (formData.ownerEmail) data.append('ownerEmail', formData.ownerEmail);
-            data.append('membershipPlans', JSON.stringify(formData.membershipPlans));
+            // Ensure membershipPlans is an array and stringify it
+            const membershipPlans = Array.isArray(formData.membershipPlans) ? formData.membershipPlans : [];
+            data.append('membershipPlans', JSON.stringify(membershipPlans));
             if (formData.deletePhotos.length > 0) {
                 data.append('deletePhotos', JSON.stringify(formData.deletePhotos));
             }
             formData.photos.forEach((photo) => {
-                data.append('photos', photo);
+                if (photo instanceof File) {
+                    data.append('photos', photo);
+                }
             });
-
-            const res = await axios.put('http://localhost:5000/api/gym/update', data, {
+    
+            const res = await axios.put(`${API_URL}/gym/update`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data',
                 },
             });
-
+    
             setFormData({
                 ...formData,
                 photos: [],
@@ -264,7 +282,7 @@ const UpdateGym = () => {
                                                     <strong>Duration:</strong> {plan.duration}
                                                 </p>
                                                 <p className="text-gray-600 text-sm sm:text-base">
-                                                    <strong>Price:</strong> ${plan.price}
+                                                    <strong>Price:</strong> Rs{plan.price}
                                                 </p>
                                             </div>
                                             <motion.button
@@ -299,7 +317,7 @@ const UpdateGym = () => {
                                 </motion.div>
                                 <motion.div variants={fadeIn} className="flex-1 mb-4 sm:mb-0">
                                     <label className="block text-gray-800 font-semibold mb-2 text-sm sm:text-base">
-                                        Price ($)
+                                        Price (Rs)
                                     </label>
                                     <input
                                         type="number"

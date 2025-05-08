@@ -4,7 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 import io from 'socket.io-client';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const Announcements = () => {
     const { user, userDetails } = useContext(AuthContext);
     const [announcements, setAnnouncements] = useState([]);
@@ -18,7 +19,7 @@ const Announcements = () => {
         }
 
         // Initialize Socket.IO
-        const socketInstance = io('http://localhost:5000');
+        const socketInstance = io(`${API_URL}`);
         setSocket(socketInstance);
 
         socketInstance.on('connect', () => {
@@ -43,7 +44,7 @@ const Announcements = () => {
         const fetchAnnouncements = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/chat/announcements', {
+                const res = await axios.get(`${API_URL}/chat/announcements`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setAnnouncements(res.data);

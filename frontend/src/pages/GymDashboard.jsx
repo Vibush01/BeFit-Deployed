@@ -4,7 +4,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const GymDashboard = () => {
     const { user, userDetails } = useContext(AuthContext);
     const [requests, setRequests] = useState([]);
@@ -16,7 +17,7 @@ const GymDashboard = () => {
         const fetchRequests = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/gym/requests', {
+                const res = await axios.get(`${API_URL}/gym/requests`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setRequests(res.data);
@@ -29,7 +30,7 @@ const GymDashboard = () => {
             if (user?.role === 'gym') {
                 try {
                     const token = localStorage.getItem('token');
-                    const res = await axios.get('http://localhost:5000/api/chat/announcements/gym', {
+                    const res = await axios.get(`${API_URL}/chat/announcements/gym`, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     setAnnouncements(res.data);
@@ -50,7 +51,7 @@ const GymDashboard = () => {
     const handleAccept = async (requestId) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.post(`http://localhost:5000/api/gym/requests/${requestId}/accept`, {}, {
+            await axios.post(`${API_URL}/gym/requests/${requestId}/accept`, {}, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setRequests(requests.filter((req) => req._id !== requestId));
@@ -63,7 +64,7 @@ const GymDashboard = () => {
     const handleDeny = async (requestId) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.post(`http://localhost:5000/api/gym/requests/${requestId}/deny`, {}, {
+            await axios.post(`${API_URL}/gym/requests/${requestId}/deny`, {}, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setRequests(requests.filter((req) => req._id !== requestId));
@@ -83,14 +84,14 @@ const GymDashboard = () => {
         try {
             const token = localStorage.getItem('token');
             if (editAnnouncementId) {
-                const res = await axios.put(`http://localhost:5000/api/chat/announcements/${editAnnouncementId}`, { message: announcementForm }, {
+                const res = await axios.put(`${API_URL}/chat/announcements/${editAnnouncementId}`, { message: announcementForm }, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setAnnouncements(announcements.map((ann) => (ann._id === editAnnouncementId ? res.data.announcement : ann)));
                 setEditAnnouncementId(null);
                 toast.success('Announcement updated', { position: "top-right" });
             } else {
-                const res = await axios.post('http://localhost:5000/api/chat/announcements', { message: announcementForm }, {
+                const res = await axios.post(`${API_URL}/chat/announcements`, { message: announcementForm }, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setAnnouncements([res.data.announcement, ...announcements]);
@@ -110,7 +111,7 @@ const GymDashboard = () => {
     const handleDeleteAnnouncement = async (announcementId) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/chat/announcements/${announcementId}`, {
+            await axios.delete(`${API_URL}/chat/announcements/${announcementId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setAnnouncements(announcements.filter((ann) => ann._id !== announcementId));

@@ -1,10 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { toast } from 'react-toastify';
-
 const MemberDashboard = () => {
     const { user, userDetails } = useContext(AuthContext);
     const [error, setError] = useState('');

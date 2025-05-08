@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const RoleSelection = () => {
     const [role, setRole] = useState('');
     const location = useLocation();
@@ -58,7 +59,7 @@ const RoleSelection = () => {
                             className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm sm:text-base transition-all duration-300"
                         >
                             <option value="">Select Role</option>
-                            <option value="admin">Admin</option>
+                            {/* <option value="admin">Admin</option> */}
                             <option value="gym">Gym Profile</option>
                             <option value="trainer">Trainer</option>
                             <option value="member">Member</option>

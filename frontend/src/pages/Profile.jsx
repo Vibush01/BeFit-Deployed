@@ -4,7 +4,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const Profile = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -20,7 +21,7 @@ const Profile = () => {
         const fetchProfile = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/auth/profile', {
+                const res = await axios.get(`${API_URL}/auth/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setFormData({
@@ -31,7 +32,8 @@ const Profile = () => {
                 });
                 setPreviewImage(res.data.profileImage || null);
             } catch (err) {
-                toast.error('Failed to fetch profile'+err, { position: "top-right" });
+                console.error('Error fetching profile:', err);
+                toast.error(err.response?.data?.message || 'Failed to fetch profile', { position: "top-right" });
             }
         };
 
@@ -59,7 +61,7 @@ const Profile = () => {
             if (formData.password) data.append('password', formData.password);
             if (formData.profileImage) data.append('profileImage', formData.profileImage);
 
-            await axios.put('http://localhost:5000/api/auth/profile', data, {
+            await axios.put(`${API_URL}/auth/profile`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data',

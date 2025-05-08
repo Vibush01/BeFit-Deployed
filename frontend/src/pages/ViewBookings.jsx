@@ -3,7 +3,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const ViewBookings = () => {
     const { user } = useContext(AuthContext);
     const [bookings, setBookings] = useState([]);
@@ -13,7 +14,7 @@ const ViewBookings = () => {
         const fetchBookings = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/trainer/bookings', {
+                const res = await axios.get(`${API_URL}/trainer/bookings`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setBookings(res.data);

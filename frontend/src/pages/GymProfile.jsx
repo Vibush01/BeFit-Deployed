@@ -4,7 +4,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const GymProfile = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -17,7 +18,7 @@ const GymProfile = () => {
     useEffect(() => {
         const fetchGym = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/gym/${id}`);
+                const res = await axios.get(`${API_URL}/gym/${id}`);
                 setGym(res.data);
             } catch (err) {
                 setError('Failed to fetch gym details');
@@ -32,7 +33,7 @@ const GymProfile = () => {
         try {
             const token = localStorage.getItem('token');
             const body = user?.role === 'member' ? { membershipDuration } : {};
-            await axios.post(`http://localhost:5000/api/gym/join/${id}`, body, {
+            await axios.post(`${API_URL}/gym/join/${id}`, body, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setSuccess('Join request sent successfully');
@@ -171,7 +172,7 @@ const GymProfile = () => {
                                             <strong>Duration:</strong> {plan.duration}
                                         </p>
                                         <p className="text-gray-600 text-sm sm:text-base">
-                                            <strong>Price:</strong> ${plan.price}
+                                            <strong>Price:</strong> Rs{plan.price}
                                         </p>
                                     </motion.li>
                                 ))}
@@ -197,9 +198,9 @@ const GymProfile = () => {
                                         <p className="text-gray-800 font-medium text-sm sm:text-base">
                                             <strong>Name:</strong> {member.name}
                                         </p>
-                                        <p className="text-gray-600 text-sm sm:text-base">
+                                        {/* <p className="text-gray-600 text-sm sm:text-base">
                                             <strong>Email:</strong> {member.email}
-                                        </p>
+                                        </p> */}
                                     </motion.li>
                                 ))}
                             </ul>
@@ -226,7 +227,7 @@ const GymProfile = () => {
                                         </p>
                                         <p className="text-gray-600 text-sm sm:text-base">
                                             <strong>Email:</strong> {trainer.email}
-                                        </p>
+                                        </p>    
                                     </motion.li>
                                 ))}
                             </ul>

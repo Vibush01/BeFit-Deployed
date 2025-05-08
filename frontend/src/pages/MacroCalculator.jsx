@@ -3,6 +3,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const MacroCalculator = () => {
     const { user } = useContext(AuthContext);
@@ -22,7 +24,7 @@ const MacroCalculator = () => {
         const fetchLogs = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/member/macros', {
+                const res = await axios.get(`${API_URL}/member/macros`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setLogs(res.data);
@@ -55,7 +57,7 @@ const MacroCalculator = () => {
             };
 
             if (editId) {
-                const res = await axios.put(`http://localhost:5000/api/member/macros/${editId}`, data, {
+                const res = await axios.put(`${API_URL}/member/macros/${editId}`, data, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setLogs(logs.map((log) => (log._id === editId ? res.data.macroLog : log)));
@@ -63,7 +65,7 @@ const MacroCalculator = () => {
                 toast.success('Macro log updated', { position: 'top-right' });
                 setEditId(null);
             } else {
-                const res = await axios.post('http://localhost:5000/api/member/macros', data, {
+                const res = await axios.post(`${API_URL}/member/macros`, data, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setLogs([res.data.macroLog, ...logs]);
@@ -92,7 +94,7 @@ const MacroCalculator = () => {
     const handleDelete = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/member/macros/${id}`, {
+            await axios.delete(`${API_URL}/member/macros/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setLogs(logs.filter((log) => log._id !== id));

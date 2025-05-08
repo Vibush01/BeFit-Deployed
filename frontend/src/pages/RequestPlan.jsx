@@ -3,7 +3,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
-
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const RequestPlan = () => {
     const { user } = useContext(AuthContext);
     const [trainers, setTrainers] = useState([]);
@@ -16,11 +17,11 @@ const RequestPlan = () => {
         const fetchTrainers = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const memberRes = await axios.get('http://localhost:5000/api/auth/profile', {
+                const memberRes = await axios.get(`${API_URL}/auth/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const gymId = memberRes.data.gym;
-                const gymRes = await axios.get(`http://localhost:5000/api/gym/${gymId}`);
+                const gymRes = await axios.get(`${API_URL}/gym/${gymId}`);
                 setTrainers(gymRes.data.trainers);
             } catch (err) {
                 toast.error('Failed to fetch trainers'+err, { position: "top-right" });
@@ -30,7 +31,7 @@ const RequestPlan = () => {
         const fetchRequests = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/trainer/member/plan-requests', {
+                const res = await axios.get(`${API_URL}/trainer/member/plan-requests`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setRequests(res.data);
@@ -42,10 +43,10 @@ const RequestPlan = () => {
         const fetchPlans = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const workoutPlansRes = await axios.get('http://localhost:5000/api/trainer/member/workout-plans', {
+                const workoutPlansRes = await axios.get(`${API_URL}/trainer/member/workout-plans`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                const dietPlansRes = await axios.get('http://localhost:5000/api/trainer/member/diet-plans', {
+                const dietPlansRes = await axios.get(`${API_URL}/trainer/member/diet-plans`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -89,7 +90,7 @@ const RequestPlan = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:5000/api/trainer/plan-requests', {
+            const res = await axios.post(`${API_URL}/trainer/plan-requests`, {
                 trainerId: selectedTrainer,
                 requestType,
             }, {
